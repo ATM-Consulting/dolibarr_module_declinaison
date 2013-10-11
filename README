@@ -1,1 +1,10 @@
-STRUCTURE STANDARD POUR CREATION DE MODULE DOLIBARR - ATM
+MODULE DECLINAISON
+* Ajout d'un onglet déclinaison pour gérer les éléments de base des déclinaisons
+** Une déclinaison est un produit caché avec comme parent un produit
+** un trigger à la sauvegarde du produit met à jour les éléments du produits décliné non éditable
+** Sur la fiche déclinaison son présent les élements suivant :
+*** libellé, description, largeur, longeur (...) + extrafields
+
+* La fiche d'un produit décliné sera composé d'une fiche (idem produit - champs) et d'un onglet stock (idem produit standard)
+
+* Ajout d'un hook dans la fiche commande et facture pour, lors du choix du produit, pouvoir choisir la déclinaison en plus
