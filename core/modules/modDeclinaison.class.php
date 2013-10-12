@@ -45,13 +45,13 @@ class modDeclinaison extends DolibarrModules
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
-        $this->numero = 14714;
+        $this->numero = 1471400;
         // Key text used to identify module (for permissions, menus, etc...)
         $this->rights_class = 'declinaison';
 
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
         // It is used to group modules in module setup page
-        $this->family = "other";
+        $this->family = "ATM";
         // Module label (no space allowed)
         // used if translation string 'ModuleXXXName' not found
         // (where XXX is value of numeric property 'numero' of module)
@@ -67,7 +67,7 @@ class modDeclinaison extends DolibarrModules
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
         // Where to store the module in setup page
         // (0=common,1=interface,2=others,3=very specific)
-        $this->special = 3;
+        $this->special = 0;
         // Name of image file used for this module.
         // If file is in theme/yourtheme/img directory under name object_pictovalue.png
         // use this->picto='pictovalue'
@@ -141,8 +141,8 @@ class modDeclinaison extends DolibarrModules
         // Array to add new pages in new tabs
         // Example:
         $this->tabs = array(
-            //	// To add a new tab identified by code tabname1
-            //	'objecttype:+tabname1:Title1:langfile@Declinaison:$user->rights->Declinaison->read:/declinaison/mynewtab1.php?id=__ID__',
+            // To add a new tab identified by code tabname1
+            	'product:+declinaison:Déclinaison:declinaison@declinaison:$user->rights->declinaison->read:/declinaison/liste.php?fk_product=__ID__',
             //	// To add another new tab identified by code tabname2
             //	'objecttype:+tabname2:Title2:langfile@Declinaison:$user->rights->othermodule->read:/declinaison/mynewtab2.php?id=__ID__',
             //	// To remove an existing tab identified by code tabname
@@ -233,18 +233,12 @@ class modDeclinaison extends DolibarrModules
         // an id, a label, a boolean and two constant strings.
         // Example:
         //// Permission id (must not be already used)
-        //$this->rights[$r][0] = 2000;
-        //// Permission label
-        //$this->rights[$r][1] = 'Permision label';
-        //// Permission by default for new user (0/1)
-        //$this->rights[$r][3] = 1;
-        //// In php code, permission will be checked by test
-        //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][4] = 'level1';
-        //// In php code, permission will be checked by test
-        //// if ($user->rights->permkey->level1->level2)
-        //$this->rights[$r][5] = 'level2';
-        //$r++;
+        $this->rights[$r][0] = $this->numero+$r;
+        $this->rights[$r][1] = 'Voir les déclinaisons';
+        $this->rights[$r][3] = 1;
+        $this->rights[$r][4] = 'read';
+        $r++;
+        
         // Main menu entries
         $this->menus = array(); // List of menus to add
         $r = 0;
