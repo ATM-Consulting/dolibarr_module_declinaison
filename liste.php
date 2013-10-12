@@ -55,7 +55,7 @@ if ($page == -1) { $page = 0; }
 $offset = $conf->liste_limit * $page;
 $pageprev = $page - 1;
 $pagenext = $page + 1;
-if (! $sortfield) $sortfield="p.ref";
+if (! $sortfield) $sortfield="p.fk_parent, p.ref";
 if (! $sortorder) $sortorder="ASC";
 
 $limit = $conf->liste_limit;
@@ -75,6 +75,37 @@ if($objp->fk_parent==0) {
 else {
 	$is_declinaison_master=false;
 	$fk_parent_declinaison = $objp->fk_parent;
+}
+
+if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rights->service->creer) ) {
+	
+	$dec = new Product($db);
+	$dec->fetch($fk_parent_declinaison);
+	$dec->libelle .='(déclinaison)';
+	$dec->ref=GETPOST('reference_dec'); 
+    $dec->id = null;
+	if ($dec->check()){
+                
+		$id_clone = $dec->create($user);
+		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
+		
+		if($id_clone>0) {
+			
+			$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
+		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?id=".$id_clone);
+		    exit;
+			
+		}
+		else {
+			print 'clone:'.(int)$id_clone.'<br />';
+			dol_print_error($db,$dec->error);
+		}
+	}
+		
+	else {
+		print "check : ";
+		dol_print_error($db,$dec->error);
+	}
 }
 
 // Get object canvas (By default, this is not defined, so standard usage of dolibarr)
@@ -146,7 +177,7 @@ else
     $sql.= ' FROM '.MAIN_DB_PREFIX.'product as p';
     if (! empty($search_categ) || ! empty($catid)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_product as cp ON p.rowid = cp.fk_product"; // We'll need this table joined to the select in order to filter by categ
    	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product_fournisseur_price as pfp ON p.rowid = pfp.fk_product";
-    $sql.= ' WHERE p.entity IN ('.getEntity('product', 1).') AND fk_parent='.$fk_parent_declinaison;
+    $sql.= ' WHERE p.entity IN ('.getEntity('product', 1).') AND (p.fk_parent='.$fk_parent_declinaison." OR p.rowid=$fk_parent_declinaison)";
     if ($sall)
     {
         $sql.= " AND (p.ref LIKE '%".$db->escape($sall)."%' OR p.label LIKE '%".$db->escape($sall)."%' OR p.description LIKE '%".$db->escape($sall)."%' OR p.note LIKE '%".$db->escape($sall)."%'";
@@ -188,12 +219,6 @@ else
 
     	$i = 0;
 
-    	if ($num == 1 && ($sall || $snom || $sref || $sbarcode) && $action != 'list')
-    	{
-    		$objp = $db->fetch_object($resql);
-    		header("Location: fiche.php?id=".$objp->rowid);
-    		exit;
-    	}
 
     	$helpurl='';
     	if (isset($type))
@@ -220,7 +245,7 @@ else
     	// Displays product removal confirmation
     	if (GETPOST('delprod'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
 
-    	$param="&amp;sref=".$sref.($sbarcode?"&amp;sbarcode=".$sbarcode:"")."&amp;snom=".$snom."&amp;sall=".$sall."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy;
+    	$param="&fk_product=".$fk_product."&amp;sref=".$sref.($sbarcode?"&amp;sbarcode=".$sbarcode:"")."&amp;snom=".$snom."&amp;sall=".$sall."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy;
     	$param.=($fourn_id?"&amp;fourn_id=".$fourn_id:"");
     	$param.=($search_categ?"&amp;search_categ=".$search_categ:"");
     	$param.=isset($type)?"&amp;type=".$type:"";
@@ -256,11 +281,14 @@ else
     	else
     	{
     		
-			if($is_declinaison_master) {
+			if($is_declinaison_master && ($user->rights->produit->creer || $user->rights->service->creer) ) {
 			/* c'est la déclinaison parente */	
 				?>
 				<p>
-				<a href="<?=dol_buildpath('/product/fiche.php?action=clone&id='.$product->id)?>" class="butAction">Créer une nouvelle déclinaison</a>
+					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref.chr(65+$num) ?>" />
+					<a href="#" onclick="document.location.href='liste.php?action=create_declinaison&fk_parent_declinaison=<?=$fk_parent_declinaison ?>&fk_product=<?=$fk_product ?>&reference_dec='+$('#reference_dec').val();" class="butAction">Créer une nouvelle déclinaison</a>
+				<br />
+				<br />
 				</p>
 				<?
 				
@@ -273,6 +301,7 @@ else
     		print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
     		print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
     		print '<input type="hidden" name="type" value="'.$type.'">';
+    		print '<input type="hidden" name="fk_product" value="'.$fk_product.'">';
 
     		print '<table class="liste" width="100%">';
 
@@ -478,18 +507,6 @@ else
     			$i++;
     		}
 
-    		if ($num > $conf->liste_limit)
-    		{
-    			if ($sref || $snom || $sall || $sbarcode || GETPOST('search'))
-    			{
-    				print_barre_liste('', $page, "liste.php", "&amp;sref=".$sref."&amp;snom=".$snom."&amp;sall=".$sall."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy, $sortfield, $sortorder,'',$num);
-    			}
-    			else
-    			{
-    				print_barre_liste('', $page, "liste.php", "&amp;sref=$sref&amp;snom=$snom&amp;fourn_id=$fourn_id".(isset($type)?"&amp;type=$type":"")."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy, $sortfield, $sortorder,'',$num);
-    			}
-    		}
-
     		$db->free($resql);
 
     		print "</table>";
@@ -507,4 +524,3 @@ else
 
 llxFooter();
 $db->close();
-?>
