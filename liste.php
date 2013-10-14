@@ -81,24 +81,39 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 	$dec = new Product($db);
 	$dec->fetch($fk_parent_declinaison);
+	$dec->fetch_optionals($dec->id);
+	
 	$dec->libelle .='(déclinaison)';
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
-                
+               
 		$id_clone = $dec->create($user);
 		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
+		
+		if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
+		{
+			$result=$dec->insertExtraFields();
+		}
 		
 		if($id_clone>0) {
 			
 			$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
-		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?id=".$id_clone);
+		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
 		    exit;
 			
 		}
 		else {
-			print 'clone:'.(int)$id_clone.'<br />';
-			dol_print_error($db,$dec->error);
+			if($id_clone==-1) {
+				setEventMessage($langs->trans('ErrorProductAlreadyExists', $dec->ref), 'errors');
+			}
+			else {
+					
+				print 'clone:'.(int)$id_clone.'<br />';
+				dol_print_error($db,$dec->error);
+				
+			}
+			
 		}
 	}
 		
@@ -292,6 +307,16 @@ else
 				</p>
 				<?
 				
+			}
+			elseif(!$is_declinaison_master){
+				?>
+				<p>
+					<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />
+					Maintenir les prix à jour avec le parent
+				<br />
+				<br />
+				</p>
+				<?
 			}
 			
 			
