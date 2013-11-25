@@ -122,7 +122,20 @@ class InterfaceDeclinaison
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+        
+        } elseif ($action == 'PRODUCT_PRICE_MODIFY') {
+        	/*
+			 * Quand on modifie le prix du parents tous ses enfants hérite de la propriété
+			 */
+			
+			
+			
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
         }
+		
+		
 
 
         return 0;
