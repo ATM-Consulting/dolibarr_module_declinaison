@@ -125,10 +125,31 @@ class InterfaceDeclinaison
         
         } elseif ($action == 'PRODUCT_PRICE_MODIFY') {
         	/*
-			 * Quand on modifie le prix du parents tous ses enfants hérite de la propriété
+			 * Quand on modifie le prix du parents tous ses enfants héritent de la propriété si bouton 'maintenir à jour' coché
 			 */
 			
+			// $object = Produit actuel
+			global $db;
 			
+			$sql = "SELECT fk_declinaison, up_to_date";
+			$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
+			$sql.= " WHERE fk_parent = ".$object->id;
+			
+			$resql = $db->query($sql);
+			$products = array();
+			while($res = $db->fetch_object($resql)) {
+				$products[$res->fk_declinaison] = $res->up_to_date;
+			}
+
+			if($resql->num_rows != 0) {
+				foreach($products as $fk_declinaison => $up_to_date) {
+					if($up_to_date == 1) {
+						$product = new Product($db);
+						$product->fetch($fk_declinaison);
+						$product->updatePrice($product->id, $object->price, 'HT', $user);
+					}
+				}
+			}
 			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id

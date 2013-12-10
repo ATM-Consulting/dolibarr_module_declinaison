@@ -24,7 +24,7 @@
  *  \brief      Page to list products and services
  */
 
-require '../main.inc.php';
+require '../../dolibarrPastel/htdocs/main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
@@ -99,6 +99,9 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		if($id_clone>0) {
 			
 			$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
+			$sql = "INSERT INTO ".MAIN_DB_PREFIX."declinaison (fk_parent, fk_declinaison, up_to_date) VALUES(".$_REQUEST['fk_product'].", ".$dec->id.", 0)";
+			$resql2=$db->query($sql);
+			
 		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
 		    exit;
 			
@@ -310,13 +313,28 @@ else
 			}
 			elseif(!$is_declinaison_master){
 				?>
-				<p>
-					<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />
-					Maintenir les prix à jour avec le parent
-				<br />
-				<br />
-				</p>
+					<form name="priceUpToDate" method="POST" action="" />
+						<p>
+							<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />
+							Maintenir les prix à jour avec le parent
+							<input type="submit" name="maintientAJour" value="Maintenir à jour" />
+						<br />
+						</p>
+					</form>
 				<?
+			}
+			
+			if(isset($_REQUEST['maintientAJour'])) {
+				//Le produit est une déclinaison
+				if($_REQUEST['sync_price_dec']) {
+					$sql = "UPDATE ".MAIN_DB_PREFIX."declinaison";
+					$sql.= " SET up_to_date = 1";
+					$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
+	
+					$db->query($sql);
+	
+					setEventMessage("Le prix de cette déclinaison sera mis à jour en même temps que son produit parent !");
+				}
 			}
 			
 			
