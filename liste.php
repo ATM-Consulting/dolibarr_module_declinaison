@@ -259,7 +259,21 @@ else
 		$picto=($product->type==1?'service':'product');
 		dol_fiche_head($head, 'declinaison', $titre, 0, $picto);
 		
+		$prod = new Product($db);
+		$prod->fetch($_REQUEST['fk_product']);		
 		
+		?>
+			<table class="border" width="100%">
+				<tr>
+					<td><?echo $langs->trans("Ref")?></td>
+					<td><?echo $prod->ref?></td>
+				</tr>
+				<tr>
+					<td><?echo $langs->trans("Label")?></td>
+					<td><?echo $prod->libelle?></td>
+				</tr>
+			</table><br />		
+		<?
     	// Displays product removal confirmation
     	if (GETPOST('delprod'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
 
@@ -328,12 +342,14 @@ else
 							
 				?>
 				
-					<!--<?$form = new Form($db);$form->name = "priceUpToDate";?>-->
 					<form name="priceUpToDate" method="POST" action="" />
 						<p>
-							<!--<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />-->
 							
 							<?
+								/*echo "<pre>";
+								print_r($prod);
+								echo "<pre>";
+								exit;*/							
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
 								$sql = "SELECT up_to_date";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
