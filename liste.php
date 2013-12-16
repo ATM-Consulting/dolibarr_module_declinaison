@@ -312,29 +312,47 @@ else
 				
 			}
 			elseif(!$is_declinaison_master){
+				if(isset($_REQUEST['maintientAJour'])) {
+					//Le produit est une déclinaison
+					//echo($_REQUEST['up_to_date']);
+					//if($_REQUEST['up_to_date'] == "Oui") {
+					$sql = "UPDATE ".MAIN_DB_PREFIX."declinaison";
+					$sql.= " SET up_to_date = ";
+					$_REQUEST['up_to_date'] == "Oui"?$sql.="1":$sql.="0";
+					$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
+
+					$db->query($sql);
+					
+					setEventMessage("Modification enregistrée avec succès");
+				}				
+							
 				?>
+				
+					<!--<?$form = new Form($db);$form->name = "priceUpToDate";?>-->
 					<form name="priceUpToDate" method="POST" action="" />
 						<p>
-							<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />
-							Maintenir les prix à jour avec le parent
-							<input type="submit" name="maintientAJour" value="Maintenir à jour" />
+							<!--<input type="checkbox" name="sync_price_dec" id="sync_price_dec" value="1" />-->
+							
+							<?
+								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
+								$sql = "SELECT up_to_date";
+								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
+								$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
+								$result = $db->query($sql);
+								$re = $db->fetch_object($result);
+							?>
+							Maintenir les prix à jour avec le parent ?
+							<table>
+								<tr><td>Oui</td><td><input type="radio" name="up_to_date" value="Oui" <?if ($re->up_to_date){?>checked="checked"<?}?>/></td></tr>
+								<tr><td>Non</td><td><input type="radio" name="up_to_date" value="Non" <?if(!$re->up_to_date){?>checked="checked"<?}?>/></td></tr>
+							</table>
+							<!--<?print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
+							<input type="submit" name="maintientAJour" value="Soumettre" />
+							
 						<br />
 						</p>
 					</form>
 				<?
-			}
-			
-			if(isset($_REQUEST['maintientAJour'])) {
-				//Le produit est une déclinaison
-				if($_REQUEST['sync_price_dec']) {
-					$sql = "UPDATE ".MAIN_DB_PREFIX."declinaison";
-					$sql.= " SET up_to_date = 1";
-					$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
-	
-					$db->query($sql);
-	
-					setEventMessage("Le prix de cette déclinaison sera mis à jour en même temps que son produit parent !");
-				}
 			}
 			
 			
