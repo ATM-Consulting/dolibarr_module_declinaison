@@ -98,7 +98,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		
 		if($id_clone>0) {
 			
-			$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
+			//$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
 			$sql = "INSERT INTO ".MAIN_DB_PREFIX."declinaison (fk_parent, fk_declinaison, up_to_date) VALUES(".$_REQUEST['fk_product'].", ".$dec->id.", 0)";
 			$resql2=$db->query($sql);
 			
@@ -265,12 +265,12 @@ else
 		?>
 			<table class="border" width="100%">
 				<tr>
-					<td><?echo $langs->trans("Ref")?></td>
-					<td><?echo $prod->ref?></td>
+					<td><?= $langs->trans("Ref")?></td>
+					<td><?= $prod->ref?></td>
 				</tr>
 				<tr>
-					<td><?echo $langs->trans("Label")?></td>
-					<td><?echo $prod->libelle?></td>
+					<td><?= $langs->trans("Label")?></td>
+					<td><?= $prod->libelle?></td>
 				</tr>
 			</table><br />		
 		<?
@@ -345,11 +345,7 @@ else
 					<form name="priceUpToDate" method="POST" action="" />
 						<p>
 							
-							<?
-								/*echo "<pre>";
-								print_r($prod);
-								echo "<pre>";
-								exit;*/							
+							<?					
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
 								$sql = "SELECT up_to_date";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
