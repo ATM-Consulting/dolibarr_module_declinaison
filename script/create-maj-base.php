@@ -10,5 +10,5 @@ require('../class/declinaison.class.php');
 $PDOdb=new TPDOdb;
 $PDOdb->db->debug=true;
 
-$o=new TDeclinaison($db);
+$o=new TDeclinaison;
 $o->init_db_by_vars($PDOdb);
