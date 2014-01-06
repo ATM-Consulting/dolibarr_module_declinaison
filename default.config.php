@@ -1,9 +1,9 @@
 <?php
 
-define('ROOT','/var/www/dolibarrPastel/htdocs/');
+define('ROOT','/var/www/dolibarr/htdocs/');
 define('COREROOT','/var/www/ATM/atm-core/');
 define('COREHTTP','http://127.0.0.1/ATM/atm-core/');
-define('HTTP','http://localhost/dolibarrPastel/');
+define('HTTP','http://localhost/dolibarr/');
 
 if(!defined('INC_FROM_DOLIBARR') && defined('INC_FROM_CRON_SCRIPT')) {
 	include(ROOT."master.inc.php");
