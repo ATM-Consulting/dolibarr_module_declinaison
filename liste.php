@@ -24,16 +24,18 @@
  *  \brief      Page to list products and services
  */
 
-require '../../dolibarrPastel/htdocs/main.inc.php';
+require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/custom/declinaison/class/declinaison.class.php';
 if (! empty($conf->categorie->enabled))
 	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
 $langs->load("products");
 $langs->load("stocks");
+$langs->load("declinaison@declinaison");
 
 $action = GETPOST('action');
 $sref=GETPOST("sref");
@@ -66,7 +68,7 @@ if($fk_product==0) exit('Erreur fk_product missing');
 $product=new Product($db);
 $product->fetch($fk_product);
 
-$resql=$db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."product WHERE rowid=".$fk_product);
+$resql=$db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".$fk_product);
 $objp = $db->fetch_object($resql);
 if($objp->fk_parent==0) {
 	$is_declinaison_master=true;
@@ -83,7 +85,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	$dec->fetch($fk_parent_declinaison);
 	$dec->fetch_optionals($dec->id);
 	
-	$dec->libelle .='(déclinaison)';
+	$dec->libelle .=' (coloris)';
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
@@ -98,10 +100,19 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		
 		if($id_clone>0) {
 			
-			$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
+			/*//$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
 			$sql = "INSERT INTO ".MAIN_DB_PREFIX."declinaison (fk_parent, fk_declinaison, up_to_date) VALUES(".$_REQUEST['fk_product'].", ".$dec->id.", 0)";
-			$resql2=$db->query($sql);
+			$resql2=$db->query($sql);*/
 			
+			$TPDOdb = new TPDOdb;
+			
+			$newDeclinaison = new TDeclinaison;
+			$newDeclinaison->fk_parent = $_REQUEST['fk_product'];
+			$newDeclinaison->fk_declinaison = $dec->id;
+			$newDeclinaison->up_to_date = 0;
+			
+			$newDeclinaison->save($TPDOdb);
+						
 		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
 		    exit;
 			
@@ -195,7 +206,8 @@ else
     $sql.= ' FROM '.MAIN_DB_PREFIX.'product as p';
     if (! empty($search_categ) || ! empty($catid)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_product as cp ON p.rowid = cp.fk_product"; // We'll need this table joined to the select in order to filter by categ
    	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product_fournisseur_price as pfp ON p.rowid = pfp.fk_product";
-    $sql.= ' WHERE p.entity IN ('.getEntity('product', 1).') AND (p.fk_parent='.$fk_parent_declinaison." OR p.rowid=$fk_parent_declinaison)";
+	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."declinaison as d ON d.fk_declinaison = p.rowid";
+    $sql.= ' WHERE p.entity IN ('.getEntity('product', 1).') AND (d.fk_parent='.$fk_parent_declinaison." OR p.rowid=$fk_parent_declinaison)";
     if ($sall)
     {
         $sql.= " AND (p.ref LIKE '%".$db->escape($sall)."%' OR p.label LIKE '%".$db->escape($sall)."%' OR p.description LIKE '%".$db->escape($sall)."%' OR p.note LIKE '%".$db->escape($sall)."%'";
@@ -228,7 +240,7 @@ else
     //if (GETPOST("toolowstock")) $sql.= " HAVING SUM(s.reel) < p.seuil_stock_alerte";    // Not used yet
     $sql.= $db->order($sortfield,$sortorder);
     $sql.= $db->plimit($limit + 1, $offset);
-
+	
     dol_syslog("sql=".$sql);
     $resql = $db->query($sql);
     if ($resql)
@@ -251,7 +263,7 @@ else
     		}
     	}
 
-    	$title=$langs->trans("NewDeclinaison");
+    	$title=$langs->trans("Declinaison");
         llxHeader('',$title,$helpurl,'');
 		
 		$head=product_prepare_head($product, $user);
@@ -265,12 +277,12 @@ else
 		?>
 			<table class="border" width="100%">
 				<tr>
-					<td><?echo $langs->trans("Ref")?></td>
-					<td><?echo $prod->ref?></td>
+					<td><?= $langs->trans("Ref")?></td>
+					<td><?= $prod->ref?></td>
 				</tr>
 				<tr>
-					<td><?echo $langs->trans("Label")?></td>
-					<td><?echo $prod->libelle?></td>
+					<td><?= $langs->trans("Label")?></td>
+					<td><?= $prod->libelle?></td>
 				</tr>
 			</table><br />		
 		<?
@@ -345,11 +357,7 @@ else
 					<form name="priceUpToDate" method="POST" action="" />
 						<p>
 							
-							<?
-								/*echo "<pre>";
-								print_r($prod);
-								echo "<pre>";
-								exit;*/							
+							<?					
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
 								$sql = "SELECT up_to_date";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
