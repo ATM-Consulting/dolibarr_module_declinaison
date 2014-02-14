@@ -9,6 +9,8 @@
 			
 			parent::_init_vars();
 			parent::start();
+			
+			$this->up_to_date=1;
 		}
 	}
 ?>
