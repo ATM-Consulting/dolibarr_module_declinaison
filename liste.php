@@ -85,7 +85,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	$dec->fetch($fk_parent_declinaison);
 	$dec->fetch_optionals($dec->id);
 	
-	$dec->libelle .=' (Décinaison)';
+	$dec->libelle .=' (Déclinaison)';
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
