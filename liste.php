@@ -646,7 +646,7 @@ function quickEditProduct(fk_product) {
 
 }
 <?
-	if(!empty($id_clone)) {
+	if(!empty($id_clone) && $id_clone>0) {
 		?>
 		quickEditProduct(<?=$id_clone ?>);
 		<?
