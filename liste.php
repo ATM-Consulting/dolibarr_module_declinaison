@@ -85,7 +85,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	$dec->fetch($fk_parent_declinaison);
 	$dec->fetch_optionals($dec->id);
 	
-	$dec->libelle .=' (coloris)';
+	$dec->libelle .=' (Décinaison)';
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
@@ -109,13 +109,13 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$newDeclinaison = new TDeclinaison;
 			$newDeclinaison->fk_parent = $_REQUEST['fk_product'];
 			$newDeclinaison->fk_declinaison = $dec->id;
-			$newDeclinaison->up_to_date = 0;
+			$newDeclinaison->up_to_date = 1;
 			
 			$newDeclinaison->save($TPDOdb);
 						
-		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
+/*		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
 		    exit;
-			
+*/
 		}
 		else {
 			if($id_clone==-1) {
@@ -369,9 +369,11 @@ else
 							<table>
 								<tr><td>Oui</td><td><input type="radio" name="up_to_date" value="Oui" <?if ($re->up_to_date){?>checked="checked"<?}?>/></td></tr>
 								<tr><td>Non</td><td><input type="radio" name="up_to_date" value="Non" <?if(!$re->up_to_date){?>checked="checked"<?}?>/></td></tr>
+<tr><td colspan="2" align="center">
+							<input type="submit" name="maintientAJour" value="Valider" />
+</td></tr>
 							</table>
 							<!--<?print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
-							<input type="submit" name="maintientAJour" value="Soumettre" />
 							
 						<br />
 						</p>
@@ -388,7 +390,7 @@ else
     		print '<input type="hidden" name="type" value="'.$type.'">';
     		print '<input type="hidden" name="fk_product" value="'.$fk_product.'">';
 
-    		print '<table class="liste" width="100%">';
+    		print '<table id="listDeclinaison" class="liste" width="100%">';
 
     		// Filter on categories
     	 	$moreforfilter='';
@@ -515,7 +517,8 @@ else
     			print "</td>\n";
 
     			// Label
-    			print '<td>'.dol_trunc($objp->label,40).'</td>';
+    			print '<td>'.dol_trunc($objp->label,40);
+			if($is_declinaison_master) print ' <a href="javascript:quickEditProduct('.$objp->rowid.')">edit</a></td>';
 
     			// Barcode
     			if (! empty($conf->barcode->enabled))
@@ -605,7 +608,53 @@ else
     	dol_print_error($db);
     }
 }
+?>
+<script type="text/javascript">
+function quickEditProduct(fk_product) {
 
+	if($('#quickEditProduct').length==0) {
+		$('body').append('<div id="quickEditProduct" title="Edition rapide"></div>');
+	}
+
+	$.get("<?=dol_buildpath('/product/fiche.php?action=edit&id=',1) ?>"+fk_product, function(data) {
+		var html = $(data).find('div.fiche').html();
+
+
+		$('#quickEditProduct').html(html);
+		$('#quickEditProduct input[name=cancel]').remove();
+
+		$('#quickEditProduct form').submit(function() {
+
+			$.post($(this).attr('action'), $( this ).serialize() );
+
+			$('#quickEditProduct').dialog("close");
+			$.jnotify('Modifications enregistr&eacute;s', "ok");   
+
+			$.get(document.location.href, function(data) {
+				$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
+			});
+
+			return false;
+		});
+
+		$('#quickEditProduct').dialog({
+			modal:true,
+			width:'80%'
+		});
+
+	});
+
+}
+<?
+	if(!empty($id_clone)) {
+		?>
+		quickEditProduct(<?=$id_clone ?>);
+		<?
+	}
+?>
+</script>
+
+<?php
 
 llxFooter();
 $db->close();
