@@ -628,7 +628,7 @@ function quickEditProduct(fk_product) {
 			$.post($(this).attr('action'), $( this ).serialize() );
 
 			$('#quickEditProduct').dialog("close");
-			$.jnotify('Modifications enregistr&eacute;s', "ok");   
+			$.jnotify('Modifications enregistr&eacute;es', "ok");   
 
 			$.get(document.location.href, function(data) {
 				$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
