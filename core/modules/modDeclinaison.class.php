@@ -105,7 +105,7 @@ class modDeclinaison extends DolibarrModules
 
         // Config pages. Put here list of php pages
         // stored into Declinaison/admin directory, used to setup module.
-        $this->config_page_url = array("admin_declinaison.php@declinaison");
+        $this->config_page_url =false;
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
@@ -431,7 +431,7 @@ class modDeclinaison extends DolibarrModules
 
         $result = $this->loadTables();
 
-        $url = dol_buildpath('/declinaison/script/create-maj-base.php', 1);
+        $url = dol_buildpath('/declinaison/script/create-maj-base.php', 2);
         file_get_contents($url);
 
         return $this->_init($sql, $options);

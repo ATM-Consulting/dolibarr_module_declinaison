@@ -1,8 +1,11 @@
 <?php
 
-	if(is_file('../main.inc.php'))$dir = '../';
-	else  if(is_file('../../../main.inc.php'))$dir = '../../../';
-	else $dir = '../../';
+$l_dir = getcwd();
+chdir(__DIR__);
+
+if(is_file('../main.inc.php'))$dir = '../';
+else  if(is_file('../../../main.inc.php'))$dir = '../../../';
+else $dir = '../../';
 
 if(!defined('INC_FROM_DOLIBARR') && defined('INC_FROM_CRON_SCRIPT')) {
 	include($dir."master.inc.php");
@@ -13,7 +16,7 @@ elseif(!defined('INC_FROM_DOLIBARR')) {
 	global $dolibarr_main_db_host, $dolibarr_main_db_name, $dolibarr_main_db_user, $dolibarr_main_db_pass;
 }
 
-if(!empty($dolibarr_main_db_host) && !define('DB_HOST')) {
+if(!empty($dolibarr_main_db_host) && !defined('DB_HOST')) {
 	define('DB_HOST',$dolibarr_main_db_host);
 	define('DB_NAME',$dolibarr_main_db_name);
 	define('DB_USER',$dolibarr_main_db_user);
@@ -24,6 +27,8 @@ if(!empty($dolibarr_main_db_host) && !define('DB_HOST')) {
 define('DOL_PACKAGE', true);
 define('USE_TBS', true);
 
-require(COREROOT.'inc.core.php');
+require('./core/inc.core.php');
 
 define('DOL_ADMIN_USER','admin');
+
+chdir($l_dir);
