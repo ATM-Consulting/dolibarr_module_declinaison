@@ -45,13 +45,13 @@ class modDeclinaison extends DolibarrModules
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
-        $this->numero = 1471400;
+        $this->numero = 104080;
         // Key text used to identify module (for permissions, menus, etc...)
         $this->rights_class = 'declinaison';
 
         // Family can be 'crm','financial','hr','projects','products','ecm','technic','other'
         // It is used to group modules in module setup page
-        $this->family = "ATM";
+        $this->family = "products";
         // Module label (no space allowed)
         // used if translation string 'ModuleXXXName' not found
         // (where XXX is value of numeric property 'numero' of module)
@@ -80,7 +80,7 @@ class modDeclinaison extends DolibarrModules
         // for specific css file (eg: /declinaison/css/declinaison.css.php)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory
-            'triggers' => 1,
+            'triggers' => 1
             // Set this to 1 if module has its own login method directory
             //'login' => 0,
             // Set this to 1 if module has its own substitution function file
