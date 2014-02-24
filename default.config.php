@@ -25,5 +25,3 @@ define('DOL_PACKAGE', true);
 define('USE_TBS', true);
 
 dol_include_once('/declinaison/core/inc.core.php');
-
-define('DOL_ADMIN_USER','admin');
