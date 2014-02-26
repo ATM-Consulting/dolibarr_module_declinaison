@@ -539,7 +539,7 @@ else
 
     			// Label
     			print '<td>'.dol_trunc($objp->label,40);
-			if($is_declinaison_master) print ' <a href="javascript:quickEditProduct('.$objp->rowid.')">edit</a></td>';
+			if($is_declinaison_master) print ' <a href="javascript:quickEditProduct('.$objp->rowid.')" class="quickedit">edit</a></td>';
 
     			// Barcode
     			if (! empty($conf->barcode->enabled))
@@ -690,6 +690,21 @@ function refreshDeclinaisonList() {
 		}
 		
 	}
+	
+	if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
+		
+		?>
+		$('#listDeclinaison a.quickedit').remove();
+		$('#listDeclinaison a').each(function() {
+			$(this).replaceWith( $(this).html() );
+		});	
+		
+		//$('#libelle_dec').css('background-color','#ccc');
+		$('#libelle_dec').attr('disabled','disabled');
+		<?
+		
+	}
+	
 ?>
 </script>
 
