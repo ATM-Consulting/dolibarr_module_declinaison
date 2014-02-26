@@ -438,6 +438,7 @@ class modDeclinaison extends DolibarrModules
 		
 		dol_include_once('/caisse/core/includes/fonctions-core.php');
 		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', __val($conf->global->DECLINAISON_SILENT_MODE,0) ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
+		dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', __val($conf->global->DECLINAISON_NO_SHOW_ITEM,0) ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
 
         return $this->_init($sql, $options);
     }
