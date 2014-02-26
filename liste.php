@@ -90,10 +90,10 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
-               
+          
 		$id_clone = $dec->create($user);
 		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
-		
+	  	
 		if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
 		{
 			$result=$dec->insertExtraFields();
