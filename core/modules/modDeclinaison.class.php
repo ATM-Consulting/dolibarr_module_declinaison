@@ -427,12 +427,18 @@ class modDeclinaison extends DolibarrModules
      */
     public function init($options = '')
     {
-        $sql = array();
+       global $conf;
+       
+	    $sql = array();
 
         $result = $this->loadTables();
 
         $url = dol_buildpath('/declinaison/script/create-maj-base.php', 2);
+		
         file_get_contents($url);
+		
+		dol_include_once('/caisse/core/includes/fonctions-core.php');
+		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', __val($conf->global->DECLINAISON_SILENT_MODE,0) ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
 
         return $this->_init($sql, $options);
     }

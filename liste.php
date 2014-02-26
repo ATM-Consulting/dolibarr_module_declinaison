@@ -85,13 +85,13 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	$dec->fetch($fk_parent_declinaison);
 	$dec->fetch_optionals($dec->id);
 	
-	$dec->libelle .=' (Déclinaison)';
+	$libelle = GETPOST('libelle_dec');
+	$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
 	$dec->ref=GETPOST('reference_dec'); 
     $dec->id = null;
 	if ($dec->check()){
                
 		$id_clone = $dec->create($user);
-		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
 		
 		if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
 		{
@@ -99,10 +99,6 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		}
 		
 		if($id_clone>0) {
-			
-			/*//$resql=$db->query("UPDATE ".MAIN_DB_PREFIX."product SET fk_parent=".$fk_parent_declinaison." WHERE rowid=".$id_clone);
-			$sql = "INSERT INTO ".MAIN_DB_PREFIX."declinaison (fk_parent, fk_declinaison, up_to_date) VALUES(".$_REQUEST['fk_product'].", ".$dec->id.", 0)";
-			$resql2=$db->query($sql);*/
 			
 			$TPDOdb = new TPDOdb;
 			
@@ -113,9 +109,6 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			
 			$newDeclinaison->save($TPDOdb);
 						
-/*		    header("Location: ".dol_buildpath('/product/fiche.php', 1)."?action=edit&id=".$id_clone);
-		    exit;
-*/
 		}
 		else {
 			if($id_clone==-1) {
@@ -327,13 +320,39 @@ else
     		
 			if($is_declinaison_master && ($user->rights->produit->creer || $user->rights->service->creer) ) {
 			/* c'est la déclinaison parente */	
+				$add_ref=chr(65+$num); 
+			
 				?>
 				<p>
-					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref.chr(65+$num) ?>" />
-					<a href="#" onclick="document.location.href='liste.php?action=create_declinaison&fk_parent_declinaison=<?=$fk_parent_declinaison ?>&fk_product=<?=$fk_product ?>&reference_dec='+$('#reference_dec').val();" class="butAction">Créer une nouvelle déclinaison</a>
+					<form name="form_declinaison" action="liste.php">
+						
+					<input type="hidden" name="action" value="create_declinaison" />
+					
+					<input type="hidden" name="fk_product" value="<?=$fk_product  ?>" /> 
+					<input type="hidden" name="fk_parent_declinaison" value="<?=$fk_parent_declinaison  ?>" /> 
+					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref.$add_ref?>" size="30" maxlength="255" initref="<?=$product->ref ?>" />
+					<input type="text" name="libelle_dec" id="libelle_dec" value="<?=addslashes($product->libelle).' '.$add_ref ?>" size="40" maxlength="255" initlibelle="<?=addslashes($product->libelle) ?>" />
+					<input type="submit" id="create_dec" class="butAction" value="Créer une nouvelle déclinaison" />
+					</form>
 				<br />
 				<br />
 				</p>
+				<script type="text/javascript">
+					
+					$('#reference_dec').keyup(function() {
+						
+						var ref = $(this).val();
+						if(ref.indexOf( $(this).attr('initref') ) == 0) { // tj même début de réf
+							
+							var libelle = $('#libelle_dec').attr('initlibelle');
+							
+							$('#libelle_dec').val( libelle +' ' + ref.substr( $(this).attr('initref').length ) );
+							
+						}						
+						
+					});
+					
+				</script>
 				<?
 				
 			}
@@ -625,17 +644,20 @@ function quickEditProduct(fk_product) {
 
 		$('#quickEditProduct form').submit(function() {
 
-			$.post($(this).attr('action'), $( this ).serialize() );
+			$.post($(this).attr('action'), $( this ).serialize(), function() {
 
-			$('#quickEditProduct').dialog("close");
-			$.jnotify('Modifications enregistr&eacute;es', "ok");   
+				$('#quickEditProduct').dialog("close");
+				$.jnotify('Modifications enregistr&eacute;es', "ok");   
+	
+				refreshDeclinaisonList();
+				
+			} );
 
-			$.get(document.location.href, function(data) {
-				$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
-			});
 
 			return false;
 		});
+
+		refreshDeclinaisonList();
 
 		$('#quickEditProduct').dialog({
 			modal:true,
@@ -645,11 +667,26 @@ function quickEditProduct(fk_product) {
 	});
 
 }
+
+function refreshDeclinaisonList() {
+	$.get(document.location.href, function(data) {
+		$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
+	});
+}
+
 <?
 	if(!empty($id_clone) && $id_clone>0) {
-		?>
-		quickEditProduct(<?=$id_clone ?>);
-		<?
+		if(!$conf->global->DECLINAISON_SILENT_MODE) {
+			?>
+			quickEditProduct(<?=$id_clone ?>);
+			<?
+		}
+		else {
+			?>refreshDeclinaisonList();
+			$.jnotify('D&eacute;clinaison cr&eacute;&eacute;e', "ok");   
+			<?
+		}
+		
 	}
 ?>
 </script>

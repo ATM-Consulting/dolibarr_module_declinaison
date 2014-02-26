@@ -1,8 +1,5 @@
 <?php
-
-$l_dir = getcwd();
-chdir(__DIR__);
-
+	
 if(is_file('../main.inc.php'))$dir = '../';
 else  if(is_file('../../../main.inc.php'))$dir = '../../../';
 else $dir = '../../';
@@ -27,8 +24,6 @@ if(!empty($dolibarr_main_db_host) && !defined('DB_HOST')) {
 define('DOL_PACKAGE', true);
 define('USE_TBS', true);
 
-require('./core/inc.core.php');
+dol_include_once('/declinaison/core/inc.core.php');
 
 define('DOL_ADMIN_USER','admin');
-
-chdir($l_dir);
