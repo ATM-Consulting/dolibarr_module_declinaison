@@ -6,6 +6,7 @@
 			parent::set_table(MAIN_DB_PREFIX.'declinaison');
 			parent::add_champs('fk_parent,fk_declinaison','type=entier;index;');
 			parent::add_champs('up_to_date','type=entier;index;');
+			parent::add_champs('ref_added','type=chaine;');
 			
 			parent::_init_vars();
 			parent::start();

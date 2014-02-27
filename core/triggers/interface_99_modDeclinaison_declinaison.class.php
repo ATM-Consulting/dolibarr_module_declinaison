@@ -114,7 +114,35 @@ class InterfaceDeclinaison
         // Put here code you want to execute when a Dolibarr business events occurs.
         // Data and type of action are stored into $object and $action
         // Users
+        $db=&$this->db;
+        
         if ($action == 'PRODUCT_MODIFY') {
+    		    	
+			if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
+				//var_dump($object);exit;	
+				
+				$sql = "SELECT fk_declinaison,ref_added";
+				$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
+				$sql.= " WHERE fk_parent = ".$object->id;
+				
+				$resql = $db->query($sql);
+				
+				while($res = $db->fetch_object($resql)) {
+					
+						$product = new Product($db);
+						$product->fetch($res->fk_declinaison);
+						
+						$new_libelle = !empty($object->libelle) ? $object->libelle : $object->label;
+						$product->label = $new_libelle.$res->ref_added;
+						$product->libelle = $product->label;
+						
+						$product->update($product->id, $user);
+				
+				}
+				
+			}
+			
+			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
@@ -128,8 +156,6 @@ class InterfaceDeclinaison
 			 * Quand on modifie le prix du parents tous ses enfants héritent de la propriété si bouton 'maintenir à jour' coché
 			 */
 			
-			// $object = Produit actuel
-			global $db;
 			
 			$sql = "SELECT fk_declinaison, up_to_date";
 			$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";

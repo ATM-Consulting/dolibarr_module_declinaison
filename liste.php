@@ -87,7 +87,10 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 	$libelle = GETPOST('libelle_dec');
 	$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
-	$dec->ref=GETPOST('reference_dec'); 
+	
+	$ref_added = GETPOST('add_reference_dec');
+	
+	$dec->ref=GETPOST('reference_dec').' '.$ref_added; 
     $dec->id = null;
 	if ($dec->check()){
           
@@ -108,6 +111,8 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$newDeclinaison->fk_parent = $_REQUEST['fk_product'];
 			$newDeclinaison->fk_declinaison = $dec->id;
 			$newDeclinaison->up_to_date = 1;
+			$newDeclinaison->ref_added = $ref_added;
+			
 			
 			$newDeclinaison->save($TPDOdb);
 
@@ -332,7 +337,8 @@ else
 					
 					<input type="hidden" name="fk_product" value="<?=$fk_product  ?>" /> 
 					<input type="hidden" name="fk_parent_declinaison" value="<?=$fk_parent_declinaison  ?>" /> 
-					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref.$add_ref?>" size="30" maxlength="255" initref="<?=$product->ref ?>" />
+					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref?>" size="30" maxlength="255" />
+					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?=$add_ref?>" size="5" maxlength="50" />
 					<input type="text" name="libelle_dec" id="libelle_dec" value="<?=addslashes($product->libelle).' '.$add_ref ?>" size="40" maxlength="255" initlibelle="<?=addslashes($product->libelle) ?>" />
 					<input type="submit" id="create_dec" class="butAction" value="Créer une nouvelle déclinaison" />
 					</form>
@@ -341,16 +347,13 @@ else
 				</p>
 				<script type="text/javascript">
 					
-					$('#reference_dec').keyup(function() {
-						
+					$('#add_reference_dec').keyup(function() {
+						var DECLINAISON_NO_MODIFY_ITEM = <?=(int)$conf->global->DECLINAISON_NO_MODIFY_ITEM ?>;
 						var ref = $(this).val();
-						if(ref.indexOf( $(this).attr('initref') ) == 0) { // tj même début de réf
+						
+						var libelle = $('#libelle_dec').attr('initlibelle');
 							
-							var libelle = $('#libelle_dec').attr('initlibelle');
-							
-							$('#libelle_dec').val( libelle +' ' + ref.substr( $(this).attr('initref').length ) );
-							
-						}						
+						$('#libelle_dec').val( libelle +' ' + ref );
 						
 					});
 					
@@ -673,9 +676,28 @@ function quickEditProduct(fk_product) {
 function refreshDeclinaisonList() {
 	$.get(document.location.href, function(data) {
 		$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
+		
+		<?
+		if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
+		?>removeLinkDeclinaison();<?
+		}
+		?>
+		
 	});
 }
-
+function removeLinkDeclinaison() {
+		
+		$('#listDeclinaison a.quickedit').remove();
+		$('#listDeclinaison a').each(function() {
+			$(this).replaceWith( $(this).html() );
+		});	
+		
+		$('#libelle_dec,#reference_dec').css('background-color','#ccc');
+		$('#libelle_dec,#reference_dec').attr('readonly','readonly');
+		
+	
+	
+}
 <?
 	if(!empty($id_clone) && $id_clone>0) {
 		if(!$conf->global->DECLINAISON_SILENT_MODE) {
@@ -692,17 +714,7 @@ function refreshDeclinaisonList() {
 	}
 	
 	if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
-		
-		?>
-		$('#listDeclinaison a.quickedit').remove();
-		$('#listDeclinaison a').each(function() {
-			$(this).replaceWith( $(this).html() );
-		});	
-		
-		//$('#libelle_dec').css('background-color','#ccc');
-		$('#libelle_dec').attr('disabled','disabled');
-		<?
-		
+		?>removeLinkDeclinaison();<?
 	}
 	
 ?>
