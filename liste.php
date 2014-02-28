@@ -688,9 +688,9 @@ function refreshDeclinaisonList() {
 function removeLinkDeclinaison() {
 		
 		$('#listDeclinaison a.quickedit').remove();
-		$('#listDeclinaison a').each(function() {
+		/*$('#listDeclinaison a').each(function() {
 			$(this).replaceWith( $(this).html() );
-		});	
+		});*/
 		
 		$('#libelle_dec,#reference_dec').css('background-color','#ccc');
 		$('#libelle_dec,#reference_dec').attr('readonly','readonly');
