@@ -133,8 +133,27 @@ class InterfaceDeclinaison
 						$product->fetch($res->fk_declinaison);
 						
 						$new_libelle = !empty($object->libelle) ? $object->libelle : $object->label;
+						
 						$product->label = $new_libelle.$res->ref_added;
 						$product->libelle = $product->label;
+						
+						$product->description = $object->description;
+						$product->note = $object->note;
+						$product->weight = $object->weight;
+						$product->weight_units = $object->weight_units;
+						$product->length = $object->length;
+						$product->length_units = $object->length_units;
+						$product->surface = $object->surface;
+						$product->surface_units = $object->surface_units;
+						$product->volume = $object->volume;
+						$product->volume_units = $object->volume_units;
+						$product->customcode = $object->customcode;
+						$product->country_id = $object->country_id;
+				
+						$product->accountancy_code_buy = $object->accountancy_code_buy;
+						$product->accountancy_code_sell= $object->accountancy_code_sell;
+						
+						$product->array_options = $object->array_options;
 						
 						$product->update($product->id, $user);
 				
