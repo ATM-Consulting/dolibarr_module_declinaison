@@ -17,10 +17,19 @@ class ActionsDeclinaison
 			$resql=$db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".$object->id);
 			$objp = $db->fetch_object($resql);
 			if($objp->fk_parent > 0) {
+				$parent = new Product($db);
+				$parent->fetch($objp->fk_parent);
+				$link = $parent->getNomUrl(1);
+				$row = '<tr><td>'.$langs->trans('DeclinaisonOf').'</td>';
+				$row.= '<td colspan="2">'.$link.'</td>';
 				?>
 				<script type="text/javascript">
 					$(document).ready(function() {
+						// On enlève le bouton permettant de modifier, la modification de la fiche ne se fait que sur le parent
 						$('a.butAction, span.butAction').parent('div').remove();
+						
+						// On ajoute a côté de la référence le lien vers le parent (raccourci)
+						$('div.fiche div.tabBar table tr:first').after('<?= $row ?>');
 					});
 				</script>
 				<?
