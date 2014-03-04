@@ -10,11 +10,11 @@ class ActionsDeclinaison
       
     function formObjectOptions($parameters, &$object, &$action, $hookmanager) 
     {  
-      	global $langs,$db;
+      	global $langs,$db,$conf;
 
 		if (in_array('productcard',explode(':',$parameters['context'])) && $action == 'view') 
 		{
-			$resql=$db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".$object->id);
+			$resql=$db->query("SELECT fk_parent, up_to_date FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".$object->id);
 			$objp = $db->fetch_object($resql);
 			if($objp->fk_parent > 0) {
 				$parent = new Product($db);
@@ -25,12 +25,24 @@ class ActionsDeclinaison
 				?>
 				<script type="text/javascript">
 					$(document).ready(function() {
-						// On enlève le bouton permettant de modifier, la modification de la fiche ne se fait que sur le parent
 						<?php
-						if($conf->global->DECLINAISON_NO_MODIFY_ITEM)  {						
+						// On enlève le bouton permettant de modifier, la modification de la fiche ne se fait que sur le parent
+						if($conf->global->DECLINAISON_NO_MODIFY_ITEM) {
 							?>$('a.butAction, span.butAction').parent('div').remove();<?php
 						}
 						?>
+						
+						<?php
+						if($objp->up_to_date == 1) {
+							// On enlève l'onglet prix client pour éviter la confusion avec les tarifs qui doivent être définis sur le parent
+							?>$('a.tab[id="price"]').parent('div').remove();<?php
+							if($conf->tarif->enabled) {
+								// On enlève l'onglet tarif pour éviter la confusion avec les tarifs qui doivent être définis sur le parent
+								?>$('a.tab[id="tabTarif1"]').parent('div').remove();<?php
+							}
+						}
+						?>
+						
 						// On ajoute a côté de la référence le lien vers le parent (raccourci)
 						$('div.fiche div.tabBar table tr:first').after('<?= $row ?>');
 					});

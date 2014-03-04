@@ -338,7 +338,7 @@ else
 					<input type="hidden" name="fk_product" value="<?=$fk_product  ?>" /> 
 					<input type="hidden" name="fk_parent_declinaison" value="<?=$fk_parent_declinaison  ?>" /> 
 					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref?>" size="30" maxlength="255" />
-					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?=$add_ref?>" size="5" maxlength="50" />
+					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?=$add_ref?>" size="10" maxlength="50" />
 					<input type="text" name="libelle_dec" id="libelle_dec" value="<?=addslashes($product->libelle).' '.$add_ref ?>" size="40" maxlength="255" initlibelle="<?=addslashes($product->libelle) ?>" />
 					<input type="submit" id="create_dec" class="butAction" value="Créer une nouvelle déclinaison" />
 					</form>
