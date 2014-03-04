@@ -26,8 +26,11 @@ class ActionsDeclinaison
 				<script type="text/javascript">
 					$(document).ready(function() {
 						// On enlève le bouton permettant de modifier, la modification de la fiche ne se fait que sur le parent
-						$('a.butAction, span.butAction').parent('div').remove();
-						
+						<?php
+						if($conf->global->DECLINAISON_NO_MODIFY_ITEM)  {						
+							?>$('a.butAction, span.butAction').parent('div').remove();<?php
+						}
+						?>
 						// On ajoute a côté de la référence le lien vers le parent (raccourci)
 						$('div.fiche div.tabBar table tr:first').after('<?= $row ?>');
 					});
