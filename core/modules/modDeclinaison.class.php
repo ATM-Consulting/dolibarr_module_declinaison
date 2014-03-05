@@ -97,6 +97,7 @@ class modDeclinaison extends DolibarrModules
             ,'hooks' => array('productcard')
             // Set here all workflow context managed by module
             //'workflow' => array('order' => array('WORKFLOW_ORDER_AUTOCREATE_INVOICE'))
+            ,'js' => '/declinaison/js/declinaison.js.php'
         );
 
         // Data directories to create when module is enabled.

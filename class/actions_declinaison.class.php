@@ -32,17 +32,6 @@ class ActionsDeclinaison
 						}
 						?>
 						
-						<?php
-						if($objp->up_to_date == 1) {
-							// On enlève l'onglet prix client pour éviter la confusion avec les tarifs qui doivent être définis sur le parent
-							?>$('a.tab[id="price"]').parent('div').remove();<?php
-							if($conf->tarif->enabled) {
-								// On enlève l'onglet tarif pour éviter la confusion avec les tarifs qui doivent être définis sur le parent
-								?>$('a.tab[id="tabTarif1"]').parent('div').remove();<?php
-							}
-						}
-						?>
-						
 						// On ajoute a côté de la référence le lien vers le parent (raccourci)
 						$('div.fiche div.tabBar table tr:first').after('<?= $row ?>');
 					});
