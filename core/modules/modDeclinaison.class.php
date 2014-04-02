@@ -109,7 +109,7 @@ class modDeclinaison extends DolibarrModules
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
-        $this->depends = array();
+        $this->depends = array('modAbricot');
         // List of modules id to disable if this one is disabled
         $this->requiredby = array();
         // Minimum version of PHP required by module
@@ -436,9 +436,14 @@ class modDeclinaison extends DolibarrModules
         $url = dol_buildpath('/declinaison/script/create-maj-base.php', 2);
         file_get_contents($url);
 		
-		dol_include_once('/declinaison/core/includes/fonctions-core.php');
-		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', __val($conf->global->DECLINAISON_SILENT_MODE,0) ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
-		dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', __val($conf->global->DECLINAISON_NO_SHOW_ITEM,0) ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
+	$res = dol_include_once('/coreatm/inc.core.php');
+
+print dol_buildpath('/coreatm/inc.core.php');
+
+print (int)$res;
+exit;
+	dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', __val($conf->global->DECLINAISON_SILENT_MODE,0) ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
+	dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', __val($conf->global->DECLINAISON_NO_SHOW_ITEM,0) ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
     	dolibarr_set_const($this->db, 'DECLINAISON_NO_MODIFY_ITEM', __val($conf->global->DECLINAISON_NO_MODIFY_ITEM,0) ,'chaine',1,'Permet de modifier ou pas les déclinaisons',0);
         return $this->_init($sql, $options);
     }

@@ -19,7 +19,8 @@
 		define('DB_USER',$dolibarr_main_db_user);
 		define('DB_PASS',$dolibarr_main_db_pass);
 		define('DB_DRIVER',$dolibarr_main_db_type);
-		dol_include_once('/coreatm/inc.core.php');
+		
+		dol_include_once('/abricot/inc.core.php');
 	
 	}
 	
