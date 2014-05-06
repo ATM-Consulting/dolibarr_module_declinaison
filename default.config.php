@@ -13,17 +13,21 @@
 		global $dolibarr_main_db_host, $dolibarr_main_db_name, $dolibarr_main_db_user, $dolibarr_main_db_pass;
 	}
 
-	if(!defined('DB_HOST')) {
+	if(!defined('DB_HOST') && !empty($dolibarr_main_db_host)) {
 		define('DB_HOST',$dolibarr_main_db_host);
 		define('DB_NAME',$dolibarr_main_db_name);
 		define('DB_USER',$dolibarr_main_db_user);
 		define('DB_PASS',$dolibarr_main_db_pass);
 		define('DB_DRIVER',$dolibarr_main_db_type);
 		
-		dol_include_once('/abricot/inc.core.php');
-	
 	}
 	
+	if(!dol_include_once('/abricot/inc.core.php')) {
+		$langs->load('declinaison@declinaison');
+		print $langs->trans('AbricotNotFound'). ' : <a href="http://wiki.atm-consulting.fr/index.php/Accueil#Module_Abricot" target="_blank">Abricot</a>';
+		exit;
+	}
+
 
 /**
  * Configuration spécifique au module
