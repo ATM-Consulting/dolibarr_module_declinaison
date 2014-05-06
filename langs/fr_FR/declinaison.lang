@@ -2,3 +2,4 @@ ModuleXXXXXXName = Name
 ModuleXXXXXXDesc = Descripion
 Declinaison = Déclinaison
 NewDeclinaison = Nouvelle déclinaison
+AbricotNotFound=Le module complémentaire gratuit Abricot ne semble pas installé dans votre environnement mais est nécessaire pour utiliser ce module. Merci de le télécharger à l'adresse suivante
