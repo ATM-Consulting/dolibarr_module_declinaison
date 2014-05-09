@@ -435,8 +435,8 @@ class modDeclinaison extends DolibarrModules
 
         $url = dol_buildpath('/declinaison/script/create-maj-base.php', 2);
         file_get_contents($url);
-
-		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', $conf->global->DECLINAISON_SILENT_MODE ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
+		
+		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE',$conf->global->DECLINAISON_SILENT_MODE ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
 		dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', $conf->global->DECLINAISON_NO_SHOW_ITEM ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
     	dolibarr_set_const($this->db, 'DECLINAISON_NO_MODIFY_ITEM', $conf->global->DECLINAISON_NO_MODIFY_ITEM ,'chaine',1,'Permet de modifier ou pas les déclinaisons',0);
 		
