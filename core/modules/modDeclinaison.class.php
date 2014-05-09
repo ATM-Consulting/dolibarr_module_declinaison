@@ -435,16 +435,11 @@ class modDeclinaison extends DolibarrModules
 
         $url = dol_buildpath('/declinaison/script/create-maj-base.php', 2);
         file_get_contents($url);
+
+		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', $conf->global->DECLINAISON_SILENT_MODE ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
+		dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', $conf->global->DECLINAISON_NO_SHOW_ITEM ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
+    	dolibarr_set_const($this->db, 'DECLINAISON_NO_MODIFY_ITEM', $conf->global->DECLINAISON_NO_MODIFY_ITEM ,'chaine',1,'Permet de modifier ou pas les déclinaisons',0);
 		
-	$res = dol_include_once('/coreatm/inc.core.php');
-
-print dol_buildpath('/coreatm/inc.core.php');
-
-print (int)$res;
-exit;
-	dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE', __val($conf->global->DECLINAISON_SILENT_MODE,0) ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
-	dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', __val($conf->global->DECLINAISON_NO_SHOW_ITEM,0) ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
-    	dolibarr_set_const($this->db, 'DECLINAISON_NO_MODIFY_ITEM', __val($conf->global->DECLINAISON_NO_MODIFY_ITEM,0) ,'chaine',1,'Permet de modifier ou pas les déclinaisons',0);
         return $this->_init($sql, $options);
     }
 

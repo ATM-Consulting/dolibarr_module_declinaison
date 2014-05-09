@@ -191,7 +191,7 @@ class InterfaceDeclinaison
 					if($up_to_date == 1) {
 						$product = new Product($db);
 						$product->fetch($fk_declinaison);
-						$product->updatePrice($product->id, $object->price, 'HT', $user);
+						$product->updatePrice($object->price, 'HT', $user);
 					}
 				}
 			}
