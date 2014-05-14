@@ -4,7 +4,7 @@
  */
 define('INC_FROM_CRON_SCRIPT', true);
 
-require('../config.php');
+dol_include_once('/declinaison/config.php');
 dol_include_once('/declinaison/class/declinaison.class.php');
 
 $PDOdb=new TPDOdb;
