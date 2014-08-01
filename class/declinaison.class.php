@@ -1,4 +1,4 @@
-<?
+<?php
 	class TDeclinaison extends TObjetStd {
 		function __construct() { /* declaration */
 			global $langs;

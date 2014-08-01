@@ -23,7 +23,7 @@ class ActionsDeclinaison
 						$('a.butAction, span.butAction').parent('div').remove();
 					});
 				</script>
-				<?
+				<?php
 			}
 		}
 		
