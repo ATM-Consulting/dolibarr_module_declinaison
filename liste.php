@@ -277,15 +277,15 @@ else
 		?>
 			<table class="border" width="100%">
 				<tr>
-					<td><?= $langs->trans("Ref")?></td>
-					<td><?= $prod->ref?></td>
+					<td><?php echo $langs->trans("Ref"); ?></td>
+					<td><?php echo $prod->ref; ?></td>
 				</tr>
 				<tr>
-					<td><?= $langs->trans("Label")?></td>
-					<td><?= $prod->libelle?></td>
+					<td><?php echo $langs->trans("Label"); ?></td>
+					<td><?php echo $prod->libelle; ?></td>
 				</tr>
 			</table><br />		
-		<?
+		<?php
     	// Displays product removal confirmation
     	if (GETPOST('delprod'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
 
@@ -335,11 +335,11 @@ else
 						
 					<input type="hidden" name="action" value="create_declinaison" />
 					
-					<input type="hidden" name="fk_product" value="<?=$fk_product  ?>" /> 
-					<input type="hidden" name="fk_parent_declinaison" value="<?=$fk_parent_declinaison  ?>" /> 
-					<input type="text" name="reference_dec" id="reference_dec" value="<?=$product->ref?>" size="30" maxlength="255" />
-					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?=$add_ref?>" size="5" maxlength="50" />
-					<input type="text" name="libelle_dec" id="libelle_dec" value="<?=addslashes($product->libelle).' '.$add_ref ?>" size="40" maxlength="255" initlibelle="<?=addslashes($product->libelle) ?>" />
+					<input type="hidden" name="fk_product" value="<?php echo $fk_product; ?>" /> 
+					<input type="hidden" name="fk_parent_declinaison" value="<?php echo $fk_parent_declinaison; ?>" /> 
+					<input type="text" name="reference_dec" id="reference_dec" value="<?php echo $product->ref; ?>" size="30" maxlength="255" />
+					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?php echo $add_ref; ?>" size="5" maxlength="50" />
+					<input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($product->libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo addslashes($product->libelle); ?>" />
 					<input type="submit" id="create_dec" class="butAction" value="Créer une nouvelle déclinaison" />
 					</form>
 				<br />
@@ -348,7 +348,7 @@ else
 				<script type="text/javascript">
 					
 					$('#add_reference_dec').keyup(function() {
-						var DECLINAISON_NO_MODIFY_ITEM = <?=(int)$conf->global->DECLINAISON_NO_MODIFY_ITEM ?>;
+						var DECLINAISON_NO_MODIFY_ITEM = <?php echo (int)$conf->global->DECLINAISON_NO_MODIFY_ITEM; ?>;
 						var ref = $(this).val();
 						
 						var libelle = $('#libelle_dec').attr('initlibelle');
@@ -358,7 +358,7 @@ else
 					});
 					
 				</script>
-				<?
+				<?php
 				
 			}
 			elseif(!$is_declinaison_master){
@@ -381,7 +381,7 @@ else
 					<form name="priceUpToDate" method="POST" action="" />
 						<p>
 							
-							<?					
+							<?php					
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
 								$sql = "SELECT up_to_date";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
@@ -391,18 +391,18 @@ else
 							?>
 							Maintenir les prix à jour avec le parent ?
 							<table>
-								<tr><td>Oui</td><td><input type="radio" name="up_to_date" value="Oui" <?if ($re->up_to_date){?>checked="checked"<?}?>/></td></tr>
-								<tr><td>Non</td><td><input type="radio" name="up_to_date" value="Non" <?if(!$re->up_to_date){?>checked="checked"<?}?>/></td></tr>
+								<tr><td>Oui</td><td><input type="radio" name="up_to_date" value="Oui" <?php if ($re->up_to_date){ ?>checked="checked"<?php } ?>/></td></tr>
+								<tr><td>Non</td><td><input type="radio" name="up_to_date" value="Non" <?php if (!$re->up_to_date){ ?>checked="checked"<?php } ?>/></td></tr>
 <tr><td colspan="2" align="center">
 							<input type="submit" name="maintientAJour" value="Valider" />
 </td></tr>
 							</table>
-							<!--<?print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
+							<!--<?php print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
 							
 						<br />
 						</p>
 					</form>
-				<?
+				<?php
 			}
 			
 			
@@ -640,7 +640,7 @@ function quickEditProduct(fk_product) {
 		$('body').append('<div id="quickEditProduct" title="Edition rapide"></div>');
 	}
 
-	$.get("<?=dol_buildpath('/product/fiche.php?action=edit&id=',1) ?>"+fk_product, function(data) {
+	$.get("<?php echo dol_buildpath('/product/fiche.php?action=edit&id=',1); ?>"+fk_product, function(data) {
 		var html = $(data).find('div.fiche').html();
 
 
@@ -677,9 +677,10 @@ function refreshDeclinaisonList() {
 	$.get(document.location.href, function(data) {
 		$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
 		
-		<?
+		<?php
 		if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
-		?>removeLinkDeclinaison();<?
+			?>removeLinkDeclinaison();
+		<?php
 		}
 		?>
 		
@@ -698,23 +699,23 @@ function removeLinkDeclinaison() {
 	
 	
 }
-<?
+<?php
 	if(!empty($id_clone) && $id_clone>0) {
 		if(!$conf->global->DECLINAISON_SILENT_MODE) {
 			?>
-			quickEditProduct(<?=$id_clone ?>);
-			<?
+			quickEditProduct(<?php echo $id_clone; ?>);
+			<?php
 		}
 		else {
 			?>refreshDeclinaisonList();
 			$.jnotify('D&eacute;clinaison cr&eacute;&eacute;e', "ok");   
-			<?
+			<?php
 		}
 		
 	}
 	
 	if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
-		?>removeLinkDeclinaison();<?
+		?>removeLinkDeclinaison();<?php
 	}
 	
 ?>
