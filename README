@@ -12,8 +12,8 @@ Documentation utilisateur : http://wiki.atm-consulting.fr/index.php/D%C3%A9clina
 
 1 - Copiez les répertoires declinaison et abricot dans le répertoire htdocs de votre dolibarr.
 2 - Activez le module Déclinaison (Configuration => Modules => Gestion produits => Déclianison).
-3 - Copier-coller le contenu du répertoire htdocs du module dans le répertoire htdocs de votre Dolibarr.
-3' - OPTIONNEL : Si vous ne souhaitez pas voir apparaître vos déclinaisons dans la liste générale des produits,
+3 - OPTIONNEL : Copier-coller le contenu du répertoire htdocs du module dans le répertoire htdocs de votre Dolibarr.
+3'- OPTIONNEL : Si vous ne souhaitez pas voir apparaître vos déclinaisons dans la liste générale des produits,
 	Rendez-vous dans Acceuil => Configuration => Divers et ajoutez le paramètre DECLINAISON_NO_SHOW_ITEM avec pour valeur 1
 4 - Le module est actif et fonctionnel, vous pouvez dès à présent l'utiliser.
 
