@@ -115,28 +115,28 @@ class InterfaceDeclinaison
         // Data and type of action are stored into $object and $action
         // Users
         $db=&$this->db;
-        
+
         if ($action == 'PRODUCT_MODIFY') {
-    		    	
+
 			if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
-				//var_dump($object);exit;	
-				
+				//var_dump($object);exit;
+
 				$sql = "SELECT fk_declinaison,ref_added";
 				$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
 				$sql.= " WHERE fk_parent = ".$object->id;
-				
+
 				$resql = $db->query($sql);
-				
+
 				while($res = $db->fetch_object($resql)) {
-					
+
 						$product = new Product($db);
 						$product->fetch($res->fk_declinaison);
-						
+
 						$new_libelle = !empty($object->libelle) ? $object->libelle : $object->label;
-						
+
 						$product->label = $new_libelle.$res->ref_added;
 						$product->libelle = $product->label;
-						
+
 						$product->description = $object->description;
 						$product->note = $object->note;
 						$product->weight = $object->weight;
@@ -149,19 +149,19 @@ class InterfaceDeclinaison
 						$product->volume_units = $object->volume_units;
 						$product->customcode = $object->customcode;
 						$product->country_id = $object->country_id;
-				
+
 						$product->accountancy_code_buy = $object->accountancy_code_buy;
 						$product->accountancy_code_sell= $object->accountancy_code_sell;
-						
+
 						$product->array_options = $object->array_options;
-						
+
 						$product->update($product->id, $user);
-				
+
 				}
-				
+
 			}
-			
-			
+
+
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
@@ -169,17 +169,17 @@ class InterfaceDeclinaison
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-        
+
         } elseif ($action == 'PRODUCT_PRICE_MODIFY') {
         	/*
 			 * Quand on modifie le prix du parents tous ses enfants héritent de la propriété si bouton 'maintenir à jour' coché
 			 */
-			
-			
+
+
 			$sql = "SELECT fk_declinaison, up_to_date";
 			$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
 			$sql.= " WHERE fk_parent = ".$object->id;
-			
+
 			$resql = $db->query($sql);
 			$products = array();
 			while($res = $db->fetch_object($resql)) {
@@ -195,14 +195,52 @@ class InterfaceDeclinaison
 					}
 				}
 			}
-			
+
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
         }
-		
-		
 
+        // If option DECLINAISON_INCLUDE_PARENT_DESC is set, add description of parent product at beggining of description of line
+        // so we can manage only delta description into a declinaison product.
+        if (! empty($conf->global->DECLINAISON_INCLUDE_PARENT_DESC))
+        {
+	        if ($action == 'LINEBILL_INSERT' || $action == 'LINEPROPAL_INSERT' || $action == 'LINEORDER_INSERT')
+	        {
+				$productid=$object->fk_product;
+
+				$sql ="SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison = ".$productid;
+	        	$resql = $db->query($sql);
+				if ($resql)
+				{
+					$obj = $db->fetch_object($resql);
+					$product = new Product($db);
+
+					if ($obj->fk_parent > 0)
+					{
+						if (get_class($object) == 'FactureLigne' || get_class($object) == 'InvoiceLine')
+						{
+							$product->fetch($obj->fk_parent);
+							$object->desc = dol_concatdesc($product->description, $object->desc);
+							$object->update($user, 1);
+						}
+						if (get_class($object) == 'PropaleLigne' || get_class($object) == 'ProposalLine')
+						{
+							$product->fetch($obj->fk_parent);
+							$object->desc = dol_concatdesc($product->description, $object->desc);
+							$object->update(1);
+						}
+						if (get_class($object) == 'CommandeLigne' || get_class($object) == 'OrderLine')
+						{
+							$product->fetch($obj->fk_parent);
+							$object->desc = dol_concatdesc($product->description, $object->desc);
+							$object->update(1);
+						}
+					}
+				}
+				else dol_print_error($db);
+	        }
+        }
 
         return 0;
     }
