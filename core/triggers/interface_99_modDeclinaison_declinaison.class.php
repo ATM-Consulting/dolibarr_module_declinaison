@@ -238,7 +238,7 @@ class InterfaceDeclinaison
 						}
 					}
 				}
-				else dol_print_error($db);
+				else dol_print_error($db, 'Error into interface_99_modDeclinaison with action = '.$action);
 	        }
         }
 
