@@ -201,44 +201,50 @@ class InterfaceDeclinaison
             );
         }
 
-        // If option DECLINAISON_INCLUDE_PARENT_DESC is set, add description of parent product at beggining of description of line
+        // If option DECLINAISON_INCLUDE_PARENT_DESC is set, add description of parent product at beginning of description of line
         // so we can manage only delta description into a declinaison product.
+        // This option need version 3.7 or more.
         if (! empty($conf->global->DECLINAISON_INCLUDE_PARENT_DESC))
         {
 	        if ($action == 'LINEBILL_INSERT' || $action == 'LINEPROPAL_INSERT' || $action == 'LINEORDER_INSERT')
 	        {
-				$productid=$object->fk_product;
-
-				$sql ="SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison = ".$productid;
-	        	$resql = $db->query($sql);
-				if ($resql)
+				if (! in_array('createfromclone', $object->context))	// If we are not into a context of cloning
 				{
-					$obj = $db->fetch_object($resql);
-					$product = new Product($db);
-
-					if ($obj->fk_parent > 0)
+		        	$productid=$object->fk_product;
+					if ($productid > 0)					// Try to complete line only if it is a a predefined product.
 					{
-						if (get_class($object) == 'FactureLigne' || get_class($object) == 'InvoiceLine')
+						$sql ="SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison = ".$productid;
+			        	$resql = $db->query($sql);
+						if ($resql)
 						{
-							$product->fetch($obj->fk_parent);
-							$object->desc = dol_concatdesc($product->description, $object->desc);
-							$object->update($user, 1);
+							$obj = $db->fetch_object($resql);
+							$product = new Product($db);
+
+							if ($obj->fk_parent > 0)
+							{
+								if (get_class($object) == 'FactureLigne' || get_class($object) == 'InvoiceLine')
+								{
+									$product->fetch($obj->fk_parent);
+									$object->desc = dol_concatdesc($product->description, $object->desc);
+									$object->update($user, 1);
+								}
+								if (get_class($object) == 'PropaleLigne' || get_class($object) == 'ProposalLine')
+								{
+									$product->fetch($obj->fk_parent);
+									$object->desc = dol_concatdesc($product->description, $object->desc);
+									$object->update(1);
+								}
+								if (get_class($object) == 'CommandeLigne' || get_class($object) == 'OrderLine')
+								{
+									$product->fetch($obj->fk_parent);
+									$object->desc = dol_concatdesc($product->description, $object->desc);
+									$object->update(1);
+								}
+							}
 						}
-						if (get_class($object) == 'PropaleLigne' || get_class($object) == 'ProposalLine')
-						{
-							$product->fetch($obj->fk_parent);
-							$object->desc = dol_concatdesc($product->description, $object->desc);
-							$object->update(1);
-						}
-						if (get_class($object) == 'CommandeLigne' || get_class($object) == 'OrderLine')
-						{
-							$product->fetch($obj->fk_parent);
-							$object->desc = dol_concatdesc($product->description, $object->desc);
-							$object->update(1);
-						}
+						else dol_print_error($db, 'error into interface_99_modDeclinaison');
 					}
 				}
-				else dol_print_error($db, 'Error into interface_99_modDeclinaison with action = '.$action);
 	        }
         }
 
