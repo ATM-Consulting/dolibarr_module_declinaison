@@ -108,12 +108,14 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$TPDOdb = new TPDOdb;
 			
 			$newDeclinaison = new TDeclinaison;
-			$newDeclinaison->fk_parent = $_REQUEST['fk_product'];
+			$newDeclinaison->fk_parent = GETPOST('fk_product');
 			$newDeclinaison->fk_declinaison = $dec->id;
 			$newDeclinaison->up_to_date = 1;
 			$newDeclinaison->ref_added = $ref_added;
 			
-			
+            $newDeclinaison->more_price = GETPOST('more_price');
+            $newDeclinaison->more_percent = GETPOST('more_percent');
+            
 			$newDeclinaison->save($TPDOdb);
 
 		}
@@ -337,11 +339,27 @@ else
 					
 					<input type="hidden" name="fk_product" value="<?php echo $fk_product; ?>" /> 
 					<input type="hidden" name="fk_parent_declinaison" value="<?php echo $fk_parent_declinaison; ?>" /> 
-					<input type="text" name="reference_dec" id="reference_dec" value="<?php echo $product->ref; ?>" size="30" maxlength="255" />
-					<input type="text" name="add_reference_dec" id="add_reference_dec" value="<?php echo $add_ref; ?>" size="5" maxlength="50" />
-					<input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($product->libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo addslashes($product->libelle); ?>" />
-					<input type="submit" id="create_dec" class="butAction" value="Créer une nouvelle déclinaison" />
-					</form>
+					
+					
+					<table class="border" width="100%">
+                        <tr>
+                            <td><?php echo $langs->trans("Ref"); ?></td>
+                            <td><input type="text" name="reference_dec" id="reference_dec" value="<?php echo $product->ref; ?>" size="30" maxlength="255" />
+                            <input type="text" name="add_reference_dec" id="add_reference_dec" value="<?php echo $add_ref; ?>" size="5" maxlength="50" /></td>
+                        </tr>
+                        <tr>
+                            <td width="20%"><?php echo $langs->trans("Label"); ?></td>
+                            <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($product->libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo addslashes($product->libelle); ?>" /></td>
+                        </tr>
+            			<tr> 
+                            <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
+                        </tr>
+                         <tr>
+                            <td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td>
+                         </tr>
+                          <tr><td colspan="2"><input type="submit" id="create_dec" class="butAction" value="<?php echo $langs->trans('CreateNewDeclinaison') ?>" /></td>   
+		            </table>
+        			</form>
 				<br />
 				<br />
 				</p>
@@ -362,14 +380,18 @@ else
 				
 			}
 			elseif(!$is_declinaison_master){
-				if(isset($_REQUEST['maintientAJour'])) {
-					//Le produit est une déclinaison
+			    
+                $fk_product = GETPOST('fk_product');
+                
+				if(GETPOST('action')=='SAVE_DECLINAISON') {
+				    //Le produit est une déclinaison
 					//echo($_REQUEST['up_to_date']);
 					//if($_REQUEST['up_to_date'] == "Oui") {
 					$sql = "UPDATE ".MAIN_DB_PREFIX."declinaison";
-					$sql.= " SET up_to_date = ";
-					$_REQUEST['up_to_date'] == "Oui"?$sql.="1":$sql.="0";
-					$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
+					$sql.= " SET up_to_date = ".( GETPOST('up_to_date') ? 1 : 0 );
+                    $sql.= " ,more_price=".(float)GETPOST('more_price');
+                    $sql.= " ,more_percent=".(float)GETPOST('more_percent');
+					$sql.= " WHERE fk_declinaison = ".$fk_product;
 
 					$db->query($sql);
 					
@@ -378,24 +400,32 @@ else
 							
 				?>
 				
-					<form name="priceUpToDate" method="POST" action="" />
+					<form name="priceUpToDate" method="POST" action="<?php echo $_SERVER['PHP_SELF'] ?>" />
 						<p>
 							
 							<?php					
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
-								$sql = "SELECT up_to_date";
+								$sql = "SELECT up_to_date,more_price,more_percent";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
-								$sql.= " WHERE fk_declinaison = ".$_REQUEST['fk_product'];
+								$sql.= " WHERE fk_declinaison = ".$fk_product;
 								$result = $db->query($sql);
 								$re = $db->fetch_object($result);
 							?>
-							Maintenir les prix à jour avec le parent ?
-							<table>
-								<tr><td>Oui</td><td><input type="radio" name="up_to_date" value="Oui" <?php if ($re->up_to_date){ ?>checked="checked"<?php } ?>/></td></tr>
-								<tr><td>Non</td><td><input type="radio" name="up_to_date" value="Non" <?php if (!$re->up_to_date){ ?>checked="checked"<?php } ?>/></td></tr>
-<tr><td colspan="2" align="center">
-							<input type="submit" name="maintientAJour" value="Valider" />
-</td></tr>
+						    <input type="hidden" name="action" value="SAVE_DECLINAISON" />
+                            <input type="hidden" name="fk_product" value="<?php echo $fk_product; ?>" />
+                        	<table>
+								<tr>
+								    <td><?php echo $langs->trans('MirrorPrice'); ?></td><td><input type="checkbox" name="up_to_date" value="1" <?php if ($re->up_to_date){ ?>checked="checked"<?php } ?>/></td>
+                                 </tr>
+                                 <tr> 
+                                    <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
+                                 </tr>
+                                 <tr>
+                                    <td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td>
+                                 </tr>   
+                                <tr><td colspan="2" align="center">
+                                							<input type="submit" name="maintientAJour" value="Valider" />
+                                </td></tr>
 							</table>
 							<!--<?php print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
 							
@@ -640,7 +670,11 @@ function quickEditProduct(fk_product) {
 		$('body').append('<div id="quickEditProduct" title="Edition rapide"></div>');
 	}
 
-	$.get("<?php echo dol_buildpath('/product/fiche.php?action=edit&id=',1); ?>"+fk_product, function(data) {
+	$.get("<?php 
+	   if((float)DOL_VERSION<=3.6) echo dol_buildpath('/product/fiche.php?action=edit&id=',1);
+       else   echo dol_buildpath('/product/card.php?action=edit&id=',1);
+       
+	?>"+fk_product, function(data) {
 		var html = $(data).find('div.fiche').html();
 
 

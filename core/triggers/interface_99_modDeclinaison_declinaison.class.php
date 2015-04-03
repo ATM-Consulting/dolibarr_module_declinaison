@@ -176,22 +176,27 @@ class InterfaceDeclinaison
 			 */
 
 
-			$sql = "SELECT fk_declinaison, up_to_date";
+			$sql = "SELECT fk_declinaison, up_to_date,more_price,more_percent";
 			$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
 			$sql.= " WHERE fk_parent = ".$object->id;
 
 			$resql = $db->query($sql);
 			$products = array();
 			while($res = $db->fetch_object($resql)) {
-				$products[$res->fk_declinaison] = $res->up_to_date;
+				$products[$res->fk_declinaison] = $res;
 			}
 
 			if($resql->num_rows != 0) {
-				foreach($products as $fk_declinaison => $up_to_date) {
-					if($up_to_date == 1) {
+				foreach($products as $fk_declinaison => $dec) {
+					if($dec->up_to_date == 1) {
 						$product = new Product($db);
 						$product->fetch($fk_declinaison);
-						$product->updatePrice($object->price, 'HT', $user);
+                        
+                        $price = $object->price;
+                        if($dec->more_price!=0)$price+=$dec->more_price;
+                        else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
+                        
+						$product->updatePrice($price, 'HT', $user);
 					}
 				}
 			}

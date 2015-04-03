@@ -2,9 +2,10 @@
 /*
  * Script créant et vérifiant que les champs requis s'ajoutent bien
  */
-define('INC_FROM_DOLIBARR', true);
 
-dol_include_once('/declinaison/config.php');
+if(defined('INC_FROM_DOLIBARR'))dol_include_once('/declinaison/config.php');
+else require('../config.php');
+
 dol_include_once('/declinaison/class/declinaison.class.php');
 
 $PDOdb=new TPDOdb;
