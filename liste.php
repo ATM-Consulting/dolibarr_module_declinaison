@@ -92,9 +92,23 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 	$dec->ref=GETPOST('reference_dec').' '.$ref_added; 
     $dec->id = null;
+    
+    // Gére le code barre
+    if ($conf->barcode->enabled) {
+    	$module = strtolower($conf->global->BARCODE_PRODUCT_ADDON_NUM);
+    	$result = dol_include_once('/core/modules/barcode/'.$module.'.php');
+    	if ($result > 0) {
+			$modBarCodeProduct =new $module();
+    	}
+    	
+		$tmpcode = $modBarCodeProduct->getNextValue($dec, 'int');
+		$dec->barcode = $tmpcode;
+    }
+    
 	if ($dec->check()){
-          
 		$id_clone = $dec->create($user);
+		
+		//var_dump($dec);
 		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
 	  	
 		if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
