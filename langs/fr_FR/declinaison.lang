@@ -1,9 +1,13 @@
 Module104080Name = Déclinaison
 Module104080Desc = Permet de gérer facilement des déclinaisons produit
 Declinaison = Déclinaison
+DeclinaisonSetup = Configuration du module Déclinaison
+DeclinaisonAbout = A propos du module Déclinaison
 NewDeclinaison = Nouvelle déclinaison
 AbricotNotFound=Le module complémentaire gratuit Abricot ne semble pas installé dans votre environnement mais est nécessaire pour utiliser ce module. Merci de le télécharger à l'adresse suivante
 MirrorPrice=Maintenir les prix à jour avec le parent ?
 MirrorPriceMore=Montant supplémentaire par rapport au parent
 MirrorPricePercent=Pourcentage supplémentaire par rapport au parent
-CreateNewDeclinaison=Créer une nouvelle déclinaison 
+CreateNewDeclinaison=Créer une nouvelle déclinaison
+CreateNewDeclinaisonWithExistantProduct = Créer à partir d'un produit existant
+DeclinaisonWithExistantProducts = Autoriser la création de déclinaisons à partir de produits pré-existants

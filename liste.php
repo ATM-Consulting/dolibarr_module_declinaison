@@ -23,10 +23,11 @@
  *  \ingroup    produit
  *  \brief      Page to list products and services
  */
-
+//var_dump($_REQUEST);exit;
 require 'config.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 dol_include_once('/declinaison/class/declinaison.class.php');
@@ -81,49 +82,59 @@ else {
 
 if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rights->service->creer) ) {
 	
-	$dec = new Product($db);
-	$dec->fetch($fk_parent_declinaison);
-	$dec->fetch_optionals($dec->id);
+	if(isset($_REQUEST['create_dec'])) { // Uniquement si on se trouve sur une création standard de déclinaison (dans les autres cas on ne crée pas de nouveau produit)
 	
-	$libelle = GETPOST('libelle_dec');
-	$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
+		$dec = new Product($db);
+		$dec->fetch($fk_parent_declinaison);
+		$dec->fetch_optionals($dec->id);
 	
-	$ref_added = GETPOST('add_reference_dec');
-	
-	$dec->ref=GETPOST('reference_dec').' '.$ref_added; 
-    $dec->id = null;
-    
-    // Gére le code barre
-    if ($conf->barcode->enabled) {
-    	$module = strtolower($conf->global->BARCODE_PRODUCT_ADDON_NUM);
-    	$result = dol_include_once('/core/modules/barcode/'.$module.'.php');
-    	if ($result > 0) {
-			$modBarCodeProduct =new $module();
-    	}
-    	
-		$tmpcode = $modBarCodeProduct->getNextValue($dec, 'int');
-		$dec->barcode = $tmpcode;
-    }
-    
-	if ($dec->check()){
-		$id_clone = $dec->create($user);
+		$libelle = GETPOST('libelle_dec');
+		$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
 		
-		//var_dump($dec);
-		//$dec->clone_associations($fk_parent_declinaison, $id_clone);
-	  	
-		if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
-		{
-			$result=$dec->insertExtraFields();
+		$ref_added = GETPOST('add_reference_dec');
+		
+		$dec->ref=GETPOST('reference_dec').' '.$ref_added; 
+	    $dec->id = null;
+		
+	    // Gére le code barre
+	    if ($conf->barcode->enabled) {
+	    	$module = strtolower($conf->global->BARCODE_PRODUCT_ADDON_NUM);
+	    	$result = dol_include_once('/core/modules/barcode/'.$module.'.php');
+	    	if ($result > 0) {
+				$modBarCodeProduct =new $module();
+	    	}
+	    	
+			$tmpcode = $modBarCodeProduct->getNextValue($dec, 'int');
+			$dec->barcode = $tmpcode;
+	    }
+	
+	}
+    
+	if ($dec->check() || (($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod']))){
+		
+		if(isset($_REQUEST['create_dec'])) {
+		
+			$id_clone = $dec->create($user);
+			
+			//var_dump($dec);
+			//$dec->clone_associations($fk_parent_declinaison, $id_clone);
+		  	
+			if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
+			{
+				$result=$dec->insertExtraFields();
+			}
+			
 		}
 		
-		if($id_clone>0) {
+		if($id_clone>0 || (($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod']))) {
 		
 			
 			$TPDOdb = new TPDOdb;
 			
 			$newDeclinaison = new TDeclinaison;
 			$newDeclinaison->fk_parent = GETPOST('fk_product');
-			$newDeclinaison->fk_declinaison = $dec->id;
+			if(isset($_REQUEST['create_dec'])) $newDeclinaison->fk_declinaison = $dec->id;
+			elseif(isset($_REQUEST['create_dec_with_existant_prod'])) $newDeclinaison->fk_declinaison = GETPOST('productid');
 			$newDeclinaison->up_to_date = 1;
 			$newDeclinaison->ref_added = $ref_added;
 			
@@ -345,6 +356,8 @@ else
 			/* c'est la déclinaison parente */	
 				$add_ref=chr(65+$num); 
 			
+				$form = new Form($db);
+			
 				?>
 				<p>
 					<form name="form_declinaison" action="liste.php">
@@ -360,6 +373,15 @@ else
                             <td><?php echo $langs->trans("Ref"); ?></td>
                             <td><input type="text" name="reference_dec" id="reference_dec" value="<?php echo $product->ref; ?>" size="30" maxlength="255" />
                             <input type="text" name="add_reference_dec" id="add_reference_dec" value="<?php echo $add_ref; ?>" size="5" maxlength="50" /></td>
+                            <?php
+                            	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
+                            		?>
+			                            <td width="50%" colspan="2" rowspan="2">
+			                            	<?php $form->select_produits('', 'productid', ''); ?>
+			                            </td>
+		                            <?php
+	                            }
+	                        ?>
                         </tr>
                         <tr>
                             <td width="20%"><?php echo $langs->trans("Label"); ?></td>
@@ -367,11 +389,34 @@ else
                         </tr>
             			<tr> 
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
+                            <?php
+                            	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
+                            		?><td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price_with_existant_product" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td><?php
+                            	}
+                            ?>
                         </tr>
                          <tr>
                             <td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td>
+                            <?php
+                            	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
+                            		?><td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent_with_existant_product" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td><?php
+                            	}
+                            ?>
                          </tr>
-                          <tr><td colspan="2"><input type="submit" id="create_dec" class="butAction" value="<?php echo $langs->trans('CreateNewDeclinaison') ?>" /></td>   
+                         <tr>
+                         	<td colspan="2">
+                         		<center><button type="submit" name="create_dec" class="butAction" ><?php echo $langs->trans('CreateNewDeclinaison') ?></button></center>
+                         	</td>
+                         	<?php
+                         	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
+                         		?>
+		                         	<td>
+		                         		<center><button type="submit" name="create_dec_with_existant_prod" class="butAction" ><?php echo $langs->trans('CreateNewDeclinaisonWithExistantProduct') ?></button></center>
+		                         	</td>
+	                         	<?php
+	                        }
+	                        ?>
+                         </tr>   
 		            </table>
         			</form>
 				<br />
@@ -410,8 +455,7 @@ else
 					$db->query($sql);
 					
 					setEventMessage("Modification enregistrée avec succès");
-				}				
-							
+				}
 				?>
 				
 					<form name="priceUpToDate" method="POST" action="<?php echo $_SERVER['PHP_SELF'] ?>" />
