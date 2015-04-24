@@ -110,7 +110,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 	}
     
-	if ($dec->check() || (($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod']))){
+	if ((($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod'])) || $dec->check()){
 		
 		if(isset($_REQUEST['create_dec'])) {
 		
@@ -138,10 +138,19 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$newDeclinaison->up_to_date = 1;
 			$newDeclinaison->ref_added = $ref_added;
 			
-            $newDeclinaison->more_price = GETPOST('more_price');
-            $newDeclinaison->more_percent = GETPOST('more_percent');
-            
-			$newDeclinaison->save($TPDOdb);
+			if(isset($_REQUEST['create_dec'])) {
+				
+	            $newDeclinaison->more_price = GETPOST('more_price');
+	            $newDeclinaison->more_percent = GETPOST('more_percent');
+				
+            } elseif(isset($_REQUEST['create_dec_with_existant_prod'])) {
+            	
+	            $newDeclinaison->more_price = GETPOST('more_price_with_existant_product');
+	            $newDeclinaison->more_percent = GETPOST('more_percent_with_existant_product');
+				            	
+            }
+			
+			if($newDeclinaison->fk_declinaison > 0) $newDeclinaison->save($TPDOdb);
 
 		}
 		else {
@@ -391,7 +400,7 @@ else
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
                             <?php
                             	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
-                            		?><td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price_with_existant_product" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td><?php
+                            		?><td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price_with_existant_product" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent_with_existant_product]').val(0) " /></td><?php
                             	}
                             ?>
                         </tr>
@@ -399,7 +408,7 @@ else
                             <td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td>
                             <?php
                             	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
-                            		?><td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent_with_existant_product" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td><?php
+                            		?><td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent_with_existant_product" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price_with_existant_product]').val(0) "  /></td><?php
                             	}
                             ?>
                          </tr>
