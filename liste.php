@@ -400,7 +400,7 @@ else
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
                             <?php
                             	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
-                            		?><td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price_with_existant_product" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent_with_existant_product]').val(0) " /></td><?php
+                            		?><td width="20%"><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price_with_existant_product" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent_with_existant_product]').val(0) " /></td><?php
                             	}
                             ?>
                         </tr>
@@ -419,7 +419,7 @@ else
                          	<?php
                          	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
                          		?>
-		                         	<td>
+		                         	<td colspan="2">
 		                         		<center><button type="submit" name="create_dec_with_existant_prod" class="butAction" ><?php echo $langs->trans('CreateNewDeclinaisonWithExistantProduct') ?></button></center>
 		                         	</td>
 	                         	<?php
