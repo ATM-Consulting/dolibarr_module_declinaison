@@ -116,8 +116,17 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	if ((($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod'])) || $dec->check()){
 		
 		if(isset($_REQUEST['create_dec'])) {
-		
+
 			$id_clone = $dec->create($user);
+			
+			//pre($dec,true);exit;
+			
+			if (!empty($conf->global->PRODUIT_MULTIPRICES)) 
+			{
+				foreach($dec->multiprices as $i => $price){
+					$dec->updatePrice($price, $dec->multiprices_base_type[$i], $user, $dec->multiprices_tva_tx[$i],'', $i);
+				}
+			}
 			
 			//var_dump($dec);
 			//$dec->clone_associations($fk_parent_declinaison, $id_clone);
