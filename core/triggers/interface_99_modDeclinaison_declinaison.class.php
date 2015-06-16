@@ -154,7 +154,14 @@ class InterfaceDeclinaison
 						$product->accountancy_code_sell= $object->accountancy_code_sell;
 
 						$product->array_options = $object->array_options;
-
+						
+						if (!empty($conf->global->PRODUIT_MULTIPRICES)) 
+						{
+							foreach($object->multiprices as $i => $price){
+								$product->updatePrice($price, $object->multiprices_base_type[$i], $user, $object->multiprices_tva_tx[$i],'', $i);
+							}
+						}
+						
 						$product->update($product->id, $user);
 
 				}

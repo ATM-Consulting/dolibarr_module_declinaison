@@ -124,6 +124,9 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			if (!empty($conf->global->PRODUIT_MULTIPRICES)) 
 			{
 				foreach($dec->multiprices as $i => $price){
+					
+					if(GETPOST('more_price')) $price += GETPOST('more_price');
+					if(GETPOST('more_percent')) $price = $price * ( 1 + (GETPOST('more_percent') / 100 ));
 					$dec->updatePrice($price, $dec->multiprices_base_type[$i], $user, $dec->multiprices_tva_tx[$i],'', $i);
 				}
 			}
