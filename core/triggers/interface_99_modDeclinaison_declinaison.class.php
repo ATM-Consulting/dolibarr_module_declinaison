@@ -115,7 +115,7 @@ class InterfaceDeclinaison
         // Data and type of action are stored into $object and $action
         // Users
         $db=&$this->db;
-
+		
         if ($action == 'PRODUCT_MODIFY') {
 
 			if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
@@ -198,12 +198,42 @@ class InterfaceDeclinaison
 					if($dec->up_to_date == 1) {
 						$product = new Product($db);
 						$product->fetch($fk_declinaison);
-                        
-                        $price = $object->price;
-                        if($dec->more_price!=0)$price+=$dec->more_price;
-                        else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
-                        
-						$product->updatePrice($price, 'HT', $user);
+						
+						// Si plusieurs prix
+						if (!empty($product->multiprices)) {
+							foreach ($_REQUEST as $key => $value) {
+								if (preg_match('/price_([0-9]*)/', $key, $matches)) {
+									// Niveau de prix à mettre à jour
+									$niveau = $matches[1];
+									break;
+								}
+							}
+							
+							if (!empty($niveau)) {
+								$price 					= price2num($_REQUEST['price_' . $niveau]);
+								$price_min 				= price2num($_REQUEST['price_min_' . $niveau]);
+								$multiprices_base_type  = $_REQUEST['multiprices_base_type_' . $niveau];
+								$tva_tx					= price2num($_REQUEST['tva_tx_' . $niveau]);
+								
+								$price_ttc = price2num($price * (1 + ($tva_tx / 100)));
+
+								$product->price = $price;
+								$product->price_base_type = $multiprices_base_type;
+								$product->price_ttc = $price_ttc;
+								$product->tva_tx = $tva_tx;
+								$product->price_min = $price_min;
+								$product->price_min_ttc = $price_min;
+								$product->price_by_qty = $price;
+		
+								$product->_log_price($user, $niveau);
+							}
+						} else {
+							$price = $object->price;
+	                        if($dec->more_price!=0)$price+=$dec->more_price;
+	                        else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
+	                        
+							$product->updatePrice($price, 'HT', $user);
+						}
 					}
 				}
 			}
