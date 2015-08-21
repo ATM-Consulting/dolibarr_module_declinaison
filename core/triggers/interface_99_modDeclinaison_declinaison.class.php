@@ -173,10 +173,14 @@ class InterfaceDeclinaison
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
         } elseif ($action == 'PRODUCT_DELETE') {
+            $sql = "DELETE FROM ".MAIN_DB_PREFIX."declinaison";
+			$sql.= " WHERE fk_declinaison = ".$object->id;
+			
+			$db->query($sql);
+			
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
-            );
-
+            );			
         } elseif ($action == 'PRODUCT_PRICE_MODIFY') {
         	/*
 			 * Quand on modifie le prix du parents tous ses enfants héritent de la propriété si bouton 'maintenir à jour' coché

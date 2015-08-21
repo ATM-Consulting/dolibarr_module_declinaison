@@ -238,6 +238,12 @@ class modDeclinaison extends DolibarrModules
         $this->rights[$r][3] = 1;
         $this->rights[$r][4] = 'read';
         $r++;
+		
+		$this->rights[$r][0] = $this->numero+$r;
+        $this->rights[$r][1] = 'Supprimer les liens';
+        $this->rights[$r][3] = 1;
+        $this->rights[$r][4] = 'delete';
+        $r++;
         
         // Main menu entries
         $this->menus = array(); // List of menus to add

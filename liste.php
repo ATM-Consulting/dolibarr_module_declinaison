@@ -187,6 +187,17 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		dol_print_error($db,$dec->error);
 	}
 }
+elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
+{
+	$link_id = GETPOST('link_id', 'int');
+	if ($link_id)
+	{
+		$TPDOdb = new TPDOdb;
+		
+		$declinaison = new TDeclinaison;
+		if ($declinaison->load($TPDOdb, $link_id)) $declinaison->delete($TPDOdb);
+	}
+}
 
 // Get object canvas (By default, this is not defined, so standard usage of dolibarr)
 //$object->getCanvas($id);
@@ -250,7 +261,7 @@ else
 		$texte = $langs->trans("ProductsAndServices");
 	}
 
-    $sql = 'SELECT DISTINCT p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type,';
+    $sql = 'SELECT DISTINCT p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, d.rowid as link_id,';
     $sql.= ' p.fk_product_type, p.tms as datem,';
     $sql.= ' p.duration, p.tosell, p.tobuy, p.seuil_stock_alerte,';
     $sql.= ' MIN(pfp.unitprice) as minsellprice';
@@ -556,6 +567,7 @@ else
     		if (! empty($conf->stock->enabled) && $user->rights->stock->lire && $type != 1) print '<td class="liste_titre" align="right">'.$langs->trans("PhysicalStock").'</td>';
     		print_liste_field_titre($langs->trans("Sell"), $_SERVER["PHP_SELF"], "p.tosell",$param,"",'align="right"',$sortfield,$sortorder);
             print_liste_field_titre($langs->trans("Buy"), $_SERVER["PHP_SELF"], "p.tobuy",$param,"",'align="right"',$sortfield,$sortorder);
+            print_liste_field_titre($langs->trans("Action"), '', '', '', '','align="right"', '', '');
     		print "</tr>\n";
 
     		// Lignes des champs de filtre
@@ -606,6 +618,10 @@ else
     		}
 
     		print '<td class="liste_titre">';
+            print '&nbsp;';
+            print '</td>';
+			
+			print '<td class="liste_titre">';
             print '&nbsp;';
             print '</td>';
 
@@ -726,6 +742,9 @@ else
 
                 // Status (to sell)
                 print '<td align="right" nowrap="nowrap">'.$product_static->LibStatut($objp->tobuy,5,1).'</td>';
+
+				if ($user->rights->declinaison->delete && $objp->link_id) print '<td align="right" nowrap="nowrap"><a href="'.dol_buildpath('/declinaison/liste.php?action=delete_link&fk_product='.$objp->rowid.'&link_id='.$objp->link_id, 2).'">'.img_picto($langs->trans('DeleteLink'), 'delete').'</a></td>';
+				else print '<td align="right" nowrap="nowrap"></td>';
 
                 print "</tr>\n";
     			$i++;
