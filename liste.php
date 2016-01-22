@@ -557,7 +557,7 @@ else
     		if (! empty($conf->barcode->enabled)) print_liste_field_titre($langs->trans("BarCode"), $_SERVER["PHP_SELF"], "p.barcode",$param,'','',$sortfield,$sortorder);
     		print_liste_field_titre($langs->trans("DateModification"), $_SERVER["PHP_SELF"], "p.tms",$param,"",'align="center"',$sortfield,$sortorder);
     		if (! empty($conf->service->enabled) && $type != 0) print_liste_field_titre($langs->trans("Duration"), $_SERVER["PHP_SELF"], "p.duration",$param,"",'align="center"',$sortfield,$sortorder);
-    		if (empty($conf->global->PRODUIT_MULTIPRICES)) print_liste_field_titre($langs->trans("SellingPrice"), $_SERVER["PHP_SELF"], "p.price",$param,"",'align="right"',$sortfield,$sortorder);
+    		print_liste_field_titre($langs->trans("SellingPrice"), $_SERVER["PHP_SELF"], "p.price",$param,"",'align="right"',$sortfield,$sortorder);
     		print '<td class="liste_titre" align="right">'.$langs->trans("BuyingPriceMinShort").'</td>';
     		if (! empty($conf->stock->enabled) && $user->rights->stock->lire && $type != 1) print '<td class="liste_titre" align="right">'.$langs->trans("PhysicalStock").'</td>';
     		print_liste_field_titre($langs->trans("Sell"), $_SERVER["PHP_SELF"], "p.tosell",$param,"",'align="right"',$sortfield,$sortorder);
@@ -592,12 +592,11 @@ else
     		}
 
     		// Sell price
-            if (empty($conf->global->PRODUIT_MULTIPRICES))
-            {
+            
         		print '<td class="liste_titre">';
         		print '&nbsp;';
         		print '</td>';
-            }
+            
 
     		// Minimum buying Price
     		print '<td class="liste_titre">';
@@ -689,13 +688,13 @@ else
     			}
 
     			// Sell price
-    			if (empty($conf->global->PRODUIT_MULTIPRICES))
-    			{
+    			/*if (empty($conf->global->PRODUIT_MULTIPRICES))
+    			{*/
     			    print '<td align="right">';
         			if ($objp->price_base_type == 'TTC') print price($objp->price_ttc).' '.$langs->trans("TTC");
         			else print price($objp->price).' '.$langs->trans("HT");
         			print '</td>';
-    			}
+    			//}
 
     			// Better buy price
                 print  '<td align="right">';
