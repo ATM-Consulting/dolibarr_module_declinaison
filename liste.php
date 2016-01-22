@@ -142,30 +142,32 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		}
 		
 		if($id_clone>0 || (($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod']))) {
-		
 			
-			$TPDOdb = new TPDOdb;
+			$PDOdb = new TPDOdb;
 			
 			$newDeclinaison = new TDeclinaison;
 			$newDeclinaison->fk_parent = GETPOST('fk_product');
-			if(isset($_REQUEST['create_dec'])) $newDeclinaison->fk_declinaison = $dec->id;
-			elseif(isset($_REQUEST['create_dec_with_existant_prod'])) $newDeclinaison->fk_declinaison = GETPOST('productid');
+			
+			$newDeclinaison->fk_declinaison = $id_clone;
+			if(isset($_REQUEST['create_dec_with_existant_prod'])) $newDeclinaison->fk_declinaison = GETPOST('productid');
+			
 			$newDeclinaison->up_to_date = 1;
 			$newDeclinaison->ref_added = $ref_added;
 			
-			if(isset($_REQUEST['create_dec'])) {
-				
-	            $newDeclinaison->more_price = GETPOST('more_price');
-	            $newDeclinaison->more_percent = GETPOST('more_percent');
-				
-            } elseif(isset($_REQUEST['create_dec_with_existant_prod'])) {
+			if(isset($_REQUEST['create_dec_with_existant_prod'])) {
             	
 	            $newDeclinaison->more_price = GETPOST('more_price_with_existant_product');
 	            $newDeclinaison->more_percent = GETPOST('more_percent_with_existant_product');
 				            	
             }
+			else {
+				$newDeclinaison->more_price = (float)GETPOST('more_price');
+	            $newDeclinaison->more_percent = (float)GETPOST('more_percent');
+			}
 			
-			if($newDeclinaison->fk_declinaison > 0) $newDeclinaison->save($TPDOdb);
+			if($newDeclinaison->fk_declinaison > 0) {
+				$newDeclinaison->save($PDOdb);
+			} 
 
 		}
 		else {
@@ -192,10 +194,10 @@ elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
 	$link_id = GETPOST('link_id', 'int');
 	if ($link_id)
 	{
-		$TPDOdb = new TPDOdb;
+		$PDOdb = new TPDOdb;
 		
 		$declinaison = new TDeclinaison;
-		if ($declinaison->load($TPDOdb, $link_id)) $declinaison->delete($TPDOdb);
+		if ($declinaison->load($PDOdb, $link_id)) $declinaison->delete($PDOdb);
 	}
 }
 
@@ -416,11 +418,15 @@ else
 			                            </td>
 		                            <?php
 	                            }
+								
+								
+								$libelle = !empty($product->label) ? $product->label : $product->libelle;
+								
 	                        ?>
                         </tr>
                         <tr>
                             <td width="20%"><?php echo $langs->trans("Label"); ?></td>
-                            <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($product->libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo addslashes($product->libelle); ?>" /></td>
+                            <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo htmlentities($libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo htmlentities($libelle); ?>" /></td>
                         </tr>
             			<tr> 
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>

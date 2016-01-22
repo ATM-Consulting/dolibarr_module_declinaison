@@ -14,5 +14,11 @@
 			
 			$this->up_to_date=1;
 		}
+		
+		function save(&$PDOdb) {
+			
+			parent::save($PDOdb);
+			
+		}
 	}
 ?>
