@@ -88,6 +88,8 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		$dec->fetch($fk_parent_declinaison);
 		$dec->fetch_optionals($dec->id);
 	
+		$dec_parent = clone $dec;
+	
 		$libelle = GETPOST('libelle_dec');
 		$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
 		
@@ -119,21 +121,6 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 
 			$id_clone = $dec->create($user);
 			
-			//pre($dec,true);exit;
-			
-			if (!empty($conf->global->PRODUIT_MULTIPRICES)) 
-			{
-				foreach($dec->multiprices as $i => $price){
-					
-					if(GETPOST('more_price')) $price += GETPOST('more_price');
-					if(GETPOST('more_percent')) $price = $price * ( 1 + (GETPOST('more_percent') / 100 ));
-					$dec->updatePrice($price, $dec->multiprices_base_type[$i], $user, $dec->multiprices_tva_tx[$i],'', $i);
-				}
-			}
-			
-			//var_dump($dec);
-			//$dec->clone_associations($fk_parent_declinaison, $id_clone);
-		  	
 			if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
 			{
 				$result=$dec->insertExtraFields();
@@ -169,6 +156,8 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 				$newDeclinaison->save($PDOdb);
 			} 
 
+			$dec_parent->call_trigger('PRODUCT_PRICE_MODIFY',$user);
+	
 		}
 		else {
 			if($id_clone==-1) {
