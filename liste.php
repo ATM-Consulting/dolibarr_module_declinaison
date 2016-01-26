@@ -92,6 +92,7 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 		$libelle = GETPOST('libelle_dec');
 		$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
+		$dec->label=$dec->libelle;
 		
 		$ref_added = GETPOST('add_reference_dec');
 		

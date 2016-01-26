@@ -128,6 +128,8 @@ class InterfaceDeclinaison
 				$resql = $db->query($sql);
 
 				while($res = $db->fetch_object($resql)) {
+					
+					echo 'we are !!';
 
 						$product = new Product($db);
 						$product->fetch($res->fk_declinaison);
@@ -202,6 +204,7 @@ class InterfaceDeclinaison
 					if($dec->up_to_date == 1) {
 						$product = new Product($db);
 						$product->fetch($fk_declinaison);
+					 	$npr = (isset($product->tva_npr)?$product->tva_npr:0);
 						
 						// Si plusieurs prix
 						if (!empty($object->multiprices)) {
@@ -212,21 +215,18 @@ class InterfaceDeclinaison
 								
 								 if($dec->more_price!=0)$price+=$dec->more_price;
 	                        	 else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
-								 var_dump($product->id, $niveau, $price);
-								 $product->updatePrice($price, 'HT', $user,'','', $niveau);
+								 $product->updatePrice($price, 'HT', $user,'','', $niveau, $product->$npr);
 							}
 												
 						} else {
 							$price = $object->price;
 	                        if($dec->more_price!=0)$price+=$dec->more_price;
 	                        else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
-	                        
-							$product->updatePrice($price, 'HT', $user);
+							$product->updatePrice($price, 'HT', $user, '', '', 0, $product->tva_npr);
 						}
 					}
 				}
 			}
-
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
