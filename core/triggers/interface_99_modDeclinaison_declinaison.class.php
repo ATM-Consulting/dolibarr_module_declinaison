@@ -128,8 +128,6 @@ class InterfaceDeclinaison
 				$resql = $db->query($sql);
 
 				while($res = $db->fetch_object($resql)) {
-					
-					echo 'we are !!';
 
 						$product = new Product($db);
 						$product->fetch($res->fk_declinaison);
