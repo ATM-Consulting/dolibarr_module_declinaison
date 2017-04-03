@@ -12,3 +12,6 @@ CreateNewDeclinaison=Créer une nouvelle déclinaison
 CreateNewDeclinaisonWithExistantProduct = Créer à partir d'un produit existant
 DeclinaisonWithExistantProducts = Autoriser la création de déclinaisons à partir de produits pré-existants
 DeleteLink=Supprimer le lien
+
+declinaison_error_fk_parent_or_declinaison_is_missing=Erreur : identifiant du produit parent ou enfant manquant
+declinaison_error_fk_parent_and_declinaison_cant_be_same=Erreur : l'identifiant du produit enfant ne peut être le produit lui même
