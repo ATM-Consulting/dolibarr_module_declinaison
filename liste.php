@@ -95,8 +95,11 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		$declinaison->id = null;
 		
 		$declinaison->ref = GETPOST('reference_dec');
-		if (GETPOST('add_reference_dec')) $declinaison->ref.= ' '.GETPOST('add_reference_dec');
-		
+		if (GETPOST('add_reference_dec'))
+		{
+			if (!empty($conf->global->DECLINAISON_CONCAT_WITHOUT_SPACE)) $declinaison->ref.= GETPOST('add_reference_dec');
+			else $declinaison->ref.= ' '.GETPOST('add_reference_dec');
+		}
 		$label = GETPOST('libelle_dec');
 		if (!empty($label)) $declinaison->libelle = $label;
 		else $declinaison->libelle.= ' (déclinaison)';

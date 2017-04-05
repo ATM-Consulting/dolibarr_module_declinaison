@@ -15,3 +15,4 @@ DeleteLink=Supprimer le lien
 
 declinaison_error_fk_parent_or_declinaison_is_missing=Erreur : identifiant du produit parent ou enfant manquant
 declinaison_error_fk_parent_and_declinaison_cant_be_same=Erreur : l'identifiant du produit enfant ne peut être le produit lui même
+DECLINAISON_CONCAT_WITHOUT_SPACE=Ne pas insérer d'espace dans la référence lors de la création d'une déclinaison
