@@ -30,6 +30,7 @@ require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 dol_include_once('/declinaison/class/declinaison.class.php');
 if (! empty($conf->categorie->enabled))
 	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
@@ -141,6 +142,11 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	{
 		$fk_parent = $product->id;
 		$fk_declinaison = GETPOST('productid');
+		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES))
+		{
+			$declinaison = new Product($db);
+			$declinaison->fetch($fk_declinaison);
+		}
 		$more_price = price2num(GETPOST('more_price_with_existant_product'));
 		$more_percent = price2num(GETPOST('more_percent_with_existant_product'));
 		
@@ -159,6 +165,14 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 	
 	if ($error == 0)
 	{
+		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES) && !empty($declinaison->id))
+		{
+			$c = new Categorie($db);
+			$TCategory = $c->containing($product->id, Categorie::TYPE_PRODUCT, 'id');
+			if (!empty($TCategory)) $declinaison->setCategories($TCategory);
+		}
+		
+		
 		$PDOdb = new TPDOdb;
 		
 		$newDeclinaison = new TDeclinaison;
