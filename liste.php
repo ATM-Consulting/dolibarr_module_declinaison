@@ -30,6 +30,7 @@ require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 dol_include_once('/declinaison/class/declinaison.class.php');
 if (! empty($conf->categorie->enabled))
 	require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
@@ -69,7 +70,7 @@ if($fk_product==0) exit('Erreur fk_product missing');
 $product=new Product($db);
 $product->fetch($fk_product);
 
-$resql=$db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".$fk_product);
+$resql=$db->query('SELECT fk_parent FROM '.MAIN_DB_PREFIX.'declinaison WHERE fk_declinaison='.$fk_product);
 $objp = $db->fetch_object($resql);
 if($objp->fk_parent==0) {
 	$is_declinaison_master=true;
@@ -80,103 +81,110 @@ else {
 	$fk_parent_declinaison = $objp->fk_parent;
 }
 
-if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rights->service->creer) ) {
+if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rights->service->creer) )
+{
+	$error = 0;
 	
-	if(isset($_REQUEST['create_dec'])) { // Uniquement si on se trouve sur une création standard de déclinaison (dans les autres cas on ne crée pas de nouveau produit)
+	$product = new Product($db);
+	$product->fetch($fk_parent_declinaison); // TODO à revoir car le fonctionnement de base est de ne pas pouvoir créer des déclinaisons de déclinaison
+	$product->fetch_optionals($product->id);
 	
-		$dec = new Product($db);
-		$dec->fetch($fk_parent_declinaison);
-		$dec->fetch_optionals($dec->id);
-	
-		$dec_parent = clone $dec;
-	
-		$libelle = GETPOST('libelle_dec');
-		$dec->libelle=($libelle) ? $libelle : $dec->libelle.' (déclinaison)';
-		$dec->label=$dec->libelle;
+	// Création d'une déclinaison en créant un nouveau produit
+	if (GETPOST('create_dec'))
+	{
+		$declinaison = clone $product;
+		$declinaison->id = null;
 		
-		$ref_added = GETPOST('add_reference_dec');
+		$declinaison->ref = GETPOST('reference_dec');
+		if (GETPOST('add_reference_dec'))
+		{
+			if (!empty($conf->global->DECLINAISON_CONCAT_WITHOUT_SPACE)) $declinaison->ref.= GETPOST('add_reference_dec');
+			else $declinaison->ref.= ' '.GETPOST('add_reference_dec');
+		}
+		$label = GETPOST('libelle_dec');
+		if (!empty($label)) $declinaison->libelle = $label;
+		else $declinaison->libelle.= ' (déclinaison)';
 		
-		$dec->ref=GETPOST('reference_dec').' '.$ref_added; 
-	    $dec->id = null;
+		$declinaison->label = $declinaison->libelle; // Compatibility
 		
-	     // Gére le code barre
-	    if ($conf->barcode->enabled) {
+	    // Gére le code barre
+	    if (!empty($conf->barcode->enabled))
+		{
 	    	$module = strtolower($conf->global->BARCODE_PRODUCT_ADDON_NUM);
 	    	$result = dol_include_once('/core/modules/barcode/'.$module.'.php');
-	    	if ($result > 0) {
+	    	if ($result > 0)
+			{
 				$modBarCodeProduct =new $module();
-
 				$tmpcode = $modBarCodeProduct->getNextValue($dec, 'int');
-				$dec->barcode = $tmpcode;
+				$declinaison->barcode = $tmpcode;
 	    	}
-			else{
-				$dec->barcode = '';
+			else
+			{
+				$declinaison->barcode = '';
 			}
 	    }
-	
-	}
-    
-	if ((($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod'])) || $dec->check()){
 		
-		if(isset($_REQUEST['create_dec'])) {
-
-			$id_clone = $dec->create($user);
-			
-			if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
-			{
-				$result=$dec->insertExtraFields();
-			}
-			
+		if ($declinaison->create($user) > 0)
+		{
+			$fk_parent = $product->id;
+			$fk_declinaison = $declinaison->id;
+			$more_price = price2num(GETPOST('more_price'));
+			$more_percent = price2num(GETPOST('more_percent'));
 		}
-		
-		if($id_clone>0 || (($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS > 0) && isset($_REQUEST['create_dec_with_existant_prod']))) {
-			
-			$PDOdb = new TPDOdb;
-			
-			$newDeclinaison = new TDeclinaison;
-			$newDeclinaison->fk_parent = GETPOST('fk_product');
-			
-			$newDeclinaison->fk_declinaison = $id_clone;
-			if(isset($_REQUEST['create_dec_with_existant_prod'])) $newDeclinaison->fk_declinaison = GETPOST('productid');
-			
-			$newDeclinaison->up_to_date = 1;
-			$newDeclinaison->ref_added = $ref_added;
-			
-			if(isset($_REQUEST['create_dec_with_existant_prod'])) {
-            	
-	            $newDeclinaison->more_price = GETPOST('more_price_with_existant_product');
-	            $newDeclinaison->more_percent = GETPOST('more_percent_with_existant_product');
-				            	
-            }
-			else {
-				$newDeclinaison->more_price = (float)GETPOST('more_price');
-	            $newDeclinaison->more_percent = (float)GETPOST('more_percent');
-			}
-			
-			if($newDeclinaison->fk_declinaison > 0) {
-				$newDeclinaison->save($PDOdb);
-			} 
-
-			$dec_parent->call_trigger('PRODUCT_PRICE_MODIFY',$user);
-	
-		}
-		else {
-			if($id_clone==-1) {
-				setEventMessage($langs->trans('ErrorProductAlreadyExists', $dec->ref), 'errors');
-			}
-			else {
-					
-				print 'clone:'.(int)$id_clone.'<br />';
-				dol_print_error($db,$dec->error);
-				
-			}
-			
+		else
+		{
+			$error++;
+			setEventMessage($declinaison->db->lasterror(), 'errors');
 		}
 	}
+	// Création d'une déclinaison avec un produit enfant déjà existant
+	elseif (!empty($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) && GETPOST('create_dec_with_existant_prod'))
+	{
+		$fk_parent = $product->id;
+		$fk_declinaison = GETPOST('productid');
+		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES))
+		{
+			$declinaison = new Product($db);
+			$declinaison->fetch($fk_declinaison);
+		}
+		$more_price = price2num(GETPOST('more_price_with_existant_product'));
+		$more_percent = price2num(GETPOST('more_percent_with_existant_product'));
 		
-	else {
-		print "check : ";
-		dol_print_error($db,$dec->error);
+		if (empty($fk_parent) || empty($fk_declinaison))
+		{
+			$error++;
+			setEventMessage($langs->trans('declinaison_error_fk_parent_or_declinaison_is_missing'), 'errors');
+		}
+	}
+	
+	if ($fk_parent == $fk_declinaison)
+	{
+		$error++;
+		setEventMessage($langs->trans('declinaison_error_fk_parent_and_declinaison_cant_be_same'), 'errors');
+	}
+	
+	if ($error == 0)
+	{
+		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES) && !empty($declinaison->id))
+		{
+			$c = new Categorie($db);
+			$TCategory = $c->containing($product->id, Categorie::TYPE_PRODUCT, 'id');
+			if (!empty($TCategory)) $declinaison->setCategories($TCategory);
+		}
+		
+		
+		$PDOdb = new TPDOdb;
+		
+		$newDeclinaison = new TDeclinaison;
+		$newDeclinaison->fk_parent = $fk_parent;
+		$newDeclinaison->fk_declinaison = $fk_declinaison;
+		$newDeclinaison->more_price = $more_price;
+		$newDeclinaison->more_percent = $more_percent;
+		
+		$newDeclinaison->up_to_date = 1;
+		$newDeclinaison->save($PDOdb);
+		
+		$product->call_trigger('PRODUCT_PRICE_MODIFY', $user);
 	}
 }
 elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
@@ -435,16 +443,13 @@ else
                             ?>
                          </tr>
                          <tr>
-                         	<td colspan="2">
-                         		<center><button type="submit" name="create_dec" class="butAction" ><?php echo $langs->trans('CreateNewDeclinaison') ?></button></center>
-                         	</td>
                          	<?php
-                         	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
-                         		?>
-		                         	<td colspan="2">
-		                         		<center><button type="submit" name="create_dec_with_existant_prod" class="butAction" ><?php echo $langs->trans('CreateNewDeclinaisonWithExistantProduct') ?></button></center>
-		                         	</td>
-	                         	<?php
+							
+							echo '<td colspan="2" align="center"><input type="submit" class="butAction" name="create_dec" value="'.$langs->trans('CreateNewDeclinaison').'" /></td>';
+							
+                         	if (!empty($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS))
+							{
+								echo '<td colspan="2" align="center"><input type="submit" name="create_dec_with_existant_prod" class="butAction" value="'.$langs->trans('CreateNewDeclinaisonWithExistantProduct').'" /></td>';
 	                        }
 	                        ?>
                          </tr>   
