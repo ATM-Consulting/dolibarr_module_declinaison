@@ -42,6 +42,7 @@ class modDeclinaison extends DolibarrModules
 
         $this->db = $db;
 
+		$this->editor_name = 'ATM-Consulting';
         // Id for module (must be unique).
         // Use a free id here
         // (See in Home -> System information -> Dolibarr for list of used modules id).
@@ -61,7 +62,7 @@ class modDeclinaison extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Declinaison for product";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.2';
+        $this->version = '1.2.0';
         // Key used in llx_const table to save module status enabled/disabled
         // (where Declinaison is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
