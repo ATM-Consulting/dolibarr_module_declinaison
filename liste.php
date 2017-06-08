@@ -424,7 +424,7 @@ else
                         </tr>
                         <tr>
                             <td width="20%"><?php echo $langs->trans("Label"); ?></td>
-                            <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo htmlentities($libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo htmlentities($libelle); ?>" /></td>
+                            <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo htmlentities($libelle); ?>" /></td>
                         </tr>
             			<tr> 
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
