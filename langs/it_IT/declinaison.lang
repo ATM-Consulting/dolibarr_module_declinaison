@@ -1,0 +1,20 @@
+Module104080Name = Prodotti Variabili
+Module104080Desc = Gestione dei prodotti variabili
+Declinaison = Variabili
+DeclinaisonSetup = Configurazione del modulo Prodotti Variabili 
+DeclinaisonAbout = A proposito del modulo Prodotti Variabili
+NewDeclinaison = Nuova variabile di prodotto
+AbricotNotFound=Modulo Free Abricot necessario qui. Scaricare
+MirrorPrice=Mantenere i prezzi aggiornati con il prodotto genitore?
+MirrorPriceMore=Importo aggiuntivo relativo al prezzo di vendita del prodotto genitore
+MirrorPricePercent=Percentuale aggiuntiva relativa al prezzo di ventita del prodotto genitore
+CreateNewDeclinaison=Crea un nuovo prodotto variabile
+CreateNewDeclinaisonWithExistantProduct =Crea a partire da un prodotto esistente
+DeclinaisonWithExistantProducts = Consenti la creazione di prodotti variabili da altri prodotti pre-esistenti
+DeleteLink=Rimuovi il collegamento
+
+declinaison_error_fk_parent_or_declinaison_is_missing=Errore: ID del prodotto genitore o del figlio mancante
+declinaison_error_fk_parent_and_declinaison_cant_be_same=Errore: l'identificativo del prodotto figlio può essere solo il prodotto stesso
+DECLINAISON_CONCAT_WITHOUT_SPACE=Non inserire uno spazio nel riferimento durante la creazione di un prodotto variabile
+DECLINAISON_COPY_TAGS_CATEGORIES=Copiare i tag / categorie dal padre al figlio
+Déclinaison=Prodotti variabili
