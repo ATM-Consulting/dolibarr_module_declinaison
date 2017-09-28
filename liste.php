@@ -296,7 +296,7 @@ else
     if ($search_categ > 0)   $sql.= " AND cp.fk_categorie = ".$search_categ;
     if ($search_categ == -2) $sql.= " AND cp.fk_categorie IS NULL";
     if ($fourn_id > 0) $sql.= " AND pfp.fk_soc = ".$fourn_id;
-    $sql.= " GROUP BY p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type,";
+    $sql.= " GROUP BY p.rowid, p.ref, p.label, p.barcode, p.price, p.price_ttc, p.price_base_type, d.rowid,";
     $sql.= " p.fk_product_type, p.tms,";
     $sql.= " p.duration, p.tosell, p.tobuy, p.seuil_stock_alerte";
     //if (GETPOST("toolowstock")) $sql.= " HAVING SUM(s.reel) < p.seuil_stock_alerte";    // Not used yet
@@ -783,17 +783,15 @@ function quickEditProduct(fk_product) {
 		$('#quickEditProduct input[name=cancel]').remove();
 
 		$('#quickEditProduct form').submit(function() {
-
-			$.post($(this).attr('action'), $( this ).serialize(), function() {
-
-				$('#quickEditProduct').dialog("close");
-				$.jnotify('Modifications enregistr&eacute;es', "ok");   
-	
-				refreshDeclinaisonList();
-				
-			} );
-
-
+			var self = this;
+			setTimeout(function() {
+				$.post($(self).attr('action'), $( self ).serialize(), function() {
+					$('#quickEditProduct').dialog("close");
+					$.jnotify('Modifications enregistr&eacute;es', "ok");   
+					refreshDeclinaisonList();
+				});
+			}, 1);
+			
 			return false;
 		});
 
