@@ -12,7 +12,7 @@ class ActionsDeclinaison
 		
 		global $conf;
 		
-		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_IN_EXPEDITION)) {
+		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
 		
 			dol_include_once('/declinaison/class/declinaison.class.php');
 			
@@ -25,7 +25,7 @@ class ActionsDeclinaison
 					$line->fk_product = $parent->id;
 					$line->product_ref= $parent->ref;
 					$line->product_label= $parent->label;
-					$line->product_desc= $parent->desc;
+					$line->product_desc= $parent->desc; //TODO description might be customed... check if different before override
 					
 				}
 				
