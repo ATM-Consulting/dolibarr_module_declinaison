@@ -8,6 +8,33 @@ class ActionsDeclinaison
       *  @return       void 
       */
       
+	function beforePDFCreation($parameters, &$object, &$action, $hookmanager) {
+		
+		global $conf;
+		
+		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_IN_EXPEDITION)) {
+		
+			dol_include_once('/declinaison/class/declinaison.class.php');
+			
+			foreach($object->lines as &$line) {
+				
+				$parent = TDeclinaison::getParent($line->fk_product);
+			
+				if($parent!==false) {
+					
+					$line->fk_product = $parent->id;
+					$line->product_ref= $parent->ref;
+					$line->product_label= $parent->label;
+					$line->product_desc= $parent->desc;
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
     function formObjectOptions($parameters, &$object, &$action, $hookmanager) 
     {  
       	global $langs,$db;
