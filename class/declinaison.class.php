@@ -20,5 +20,23 @@
 			parent::save($PDOdb);
 			
 		}
+		
+		static function getParent($fk_product) {
+			global $db;
+			
+			dol_include_once('/product/class/product.class.php');
+			$res = $db->query("SELECT fk_parent FROM ".MAIN_DB_PREFIX."declinaison WHERE fk_declinaison=".(int)$fk_product);
+			if($res!== false && $obj = $db->fetch_object($res)) {
+				
+				
+				
+				$p=new Product($db);
+				if($p->fetch($obj->fk_parent)) return $p;
+				
+			}
+			
+			return false;
+			
+		}
 	}
 ?>
