@@ -21,6 +21,10 @@ class ActionsDeclinaison
 				)
 				|| empty($conf->global->DECLINAISON_OBJECT_USURPATION)
 			) {
+
+
+			define('INC_FROM_DOLIBARR',true);
+			dol_include_once('/declinaison/config.php');
 			dol_include_once('/declinaison/class/declinaison.class.php');
 
 			foreach($object->lines as &$line) {
