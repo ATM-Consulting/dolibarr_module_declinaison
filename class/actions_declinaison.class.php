@@ -23,28 +23,92 @@ class ActionsDeclinaison
 			) {
 
 
-			define('INC_FROM_DOLIBARR',true);
-			dol_include_once('/declinaison/config.php');
-			dol_include_once('/declinaison/class/declinaison.class.php');
+				define('INC_FROM_DOLIBARR',true);
+				dol_include_once('/declinaison/config.php');
+				dol_include_once('/declinaison/class/declinaison.class.php');
 
-			foreach($object->lines as &$line) {
+				foreach($object->lines as &$line) {
 
-				$parent = TDeclinaison::getParent($line->fk_product);
+					if($line->product_type>1) continue;
 
-				if($parent!==false) {
+					$parent = TDeclinaison::getParent($line->fk_product);
 
-					$line->fk_product = $parent->id;
-					$line->product_ref= $parent->ref;
-					$line->product_label= $parent->label;
-					$line->product_desc= $parent->desc; //TODO description might be customed... check if different before override
+					if($parent!==false) {
+
+						$line->fk_product = $parent->id;
+						$line->product_ref= $parent->ref;
+						$line->product_label= $parent->label;
+						$line->product_desc= $parent->desc; //TODO description might be customed... check if different before override
+
+					}
 
 				}
 
-			}
+				if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
 
-			}
+					$fk_product = -1;$line_k=-1;
+					foreach($object->lines as $k=>&$line) {
+						if($line->product_type>1) continue;
 
+
+						if($line->fk_product > 0 && ($line->fk_product!=$fk_product || $fk_product == -1)) {
+							$fk_product = $line->fk_product;
+							$line_k = $k;
+
+						}
+						else if ($line->fk_product == $fk_product){
+
+							$object->lines[$line_k]->qty+=$line->qty;
+							$object->lines[$line_k]->total_ht+=$line->total_ht;
+							$object->lines[$line_k]->total+=$line->total;
+							$object->lines[$k]->special_code = 3;
+							//unset($object->lines[$k]);
+							//var_dump($fk_product,$line_k,$k,$object->lines[$line_k]->qty);exit;
+						}
+
+					}
+
+					ksort($object->lines);
+
+				}
+			}
 		}
+
+	}
+
+	function dec_return_null($parameters, &$object, &$action, $hookmanager) {
+		global $conf;
+		if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
+			$line = &$object->lines[$parameters['i']];
+			if($line->special_code == 3) return 1;
+		}
+		return 0;
+	}
+
+
+	function pdf_getlinetotalexcltax($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlineremisepercent($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlinevatrate($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlineupexcltax($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlineqty($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlineunit($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
+	}
+	function pdf_getlineref($parameters, &$object, &$action, $hookmanager) {
+		return $this->dec_return_null($parameters, $object, $action, $hookmanager);
 
 	}
 
