@@ -115,8 +115,49 @@ class InterfaceDeclinaison
         // Data and type of action are stored into $object and $action
         // Users
         $db=&$this->db;
-		
-        if ($action == 'PRODUCT_MODIFY') {
+
+		if($action ==='SUPPLIER_PRODUCT_BUYPRICE_UPDATE') {
+
+
+			$sql = "SELECT fk_declinaison, up_to_date,more_price,more_percent";
+			$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
+			$sql.= " WHERE fk_parent = ".$object->id;
+
+			$resql = $db->query($sql);
+			$products = array();
+			while($res = $db->fetch_object($resql)) {
+				$products[$res->fk_declinaison] = $res;
+			}
+
+			if($resql->num_rows != 0) {
+				foreach($products as $fk_declinaison => $dec) {
+					if($dec->up_to_date == 1) {
+						$product = new ProductFournisseur($db);
+						$product->fetch($fk_declinaison);
+
+						$productfourn = new ProductFournisseur($db);
+						$productfourn->fetch_product_fournisseur_price( $object->product_fourn_price_id );
+
+						$fourn=new Fournisseur($db);
+						$fourn->id = $productfourn->fourn_id;
+						$product->product_fourn_price_id = 0;
+						$product->product_fourn_id = $product->id;
+						$res = $product->update_buyprice($productfourn->fourn_qty, $productfourn->fourn_price, $user
+								, $productfourn->price_base_type, $fourn, $productfourn->fk_availability, $productfourn->ref_supplier
+								, $productfourn->fourn_tva_tx
+								, 0, $productfourn->fourn_remise_percent, 0, 0, $productfourn->delivery_time_days
+								, $productfourn->supplier_reputation);
+
+						if($res <= 0) {
+							var_dump($product);exit;
+
+						}
+
+					}
+				}
+			}
+		}
+		else if ($action == 'PRODUCT_MODIFY') {
 
 			if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
 				//var_dump($object);exit;
@@ -154,14 +195,14 @@ class InterfaceDeclinaison
 						$product->accountancy_code_sell= $object->accountancy_code_sell;
 
 						$product->array_options = $object->array_options;
-						
-						if (!empty($conf->global->PRODUIT_MULTIPRICES)) 
+
+						if (!empty($conf->global->PRODUIT_MULTIPRICES))
 						{
 							foreach($object->multiprices as $i => $price){
 								$product->updatePrice($price, $object->multiprices_base_type[$i], $user, $object->multiprices_tva_tx[$i],'', $i);
 							}
 						}
-						
+
 						$product->update($product->id, $user);
 
 				}
@@ -175,12 +216,12 @@ class InterfaceDeclinaison
         } elseif ($action == 'PRODUCT_DELETE') {
             $sql = "DELETE FROM ".MAIN_DB_PREFIX."declinaison";
 			$sql.= " WHERE fk_declinaison = ".$object->id;
-			
+
 			$db->query($sql);
-			
+
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
-            );			
+            );
         } elseif ($action == 'PRODUCT_PRICE_MODIFY') {
         	/*
 			 * Quand on modifie le prix du parents tous ses enfants héritent de la propriété si bouton 'maintenir à jour' coché
@@ -203,19 +244,19 @@ class InterfaceDeclinaison
 						$product = new Product($db);
 						$product->fetch($fk_declinaison);
 					 	$npr = (isset($product->tva_npr)?$product->tva_npr:0);
-						
+
 						// Si plusieurs prix
 						if (!empty($object->multiprices)) {
-								
+
 							foreach($object->multiprices as $niveau=>$price) {
-								
+
 								 if(empty($price)) continue;
-								
+
 								 if($dec->more_price!=0)$price+=$dec->more_price;
 	                        	 else if($dec->more_percent!=0)$price*= (1 + ($dec->more_percent/100)) ;
 								 $product->updatePrice($price, 'HT', $user,'','', $niveau, $product->$npr);
 							}
-												
+
 						} else {
 							$price = $object->price;
 	                        if($dec->more_price!=0)$price+=$dec->more_price;
