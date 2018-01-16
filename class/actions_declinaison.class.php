@@ -48,8 +48,7 @@ class ActionsDeclinaison
 
 					$fk_product = -1;$line_k=-1;
 					foreach($object->lines as $k=>&$line) {
-						if($line->product_type>1) continue;
-
+						if($line->product_type>1) $fk_product = -1;
 
 						if($line->fk_product > 0 && ($line->fk_product!=$fk_product || $fk_product == -1)) {
 							$fk_product = $line->fk_product;

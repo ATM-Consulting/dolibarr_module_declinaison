@@ -19,3 +19,4 @@ DECLINAISON_CONCAT_WITHOUT_SPACE=Ne pas insérer d'espace dans la référence lo
 DECLINAISON_COPY_TAGS_CATEGORIES=Copier les tags/catégories du parent vers l'enfant
 
 DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF=Afficher le parent du produit à la place de ce dernier dans les PDF
+DECLINAISON_COMPACT_LINES=Regrouper les lignes de mêmes produits

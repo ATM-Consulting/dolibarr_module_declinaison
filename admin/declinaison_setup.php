@@ -154,6 +154,21 @@ print ajax_constantonoff('DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF');
 print '</form>';
 print '</td></tr>';
 
+if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
+	$var=!$var;
+	print '<tr '.$bc[$var].'>';
+	print '<td>'.$langs->trans("DECLINAISON_COMPACT_LINES").'</td>';
+	print '<td align="center" width="20">&nbsp;</td>';
+	print '<td align="right" width="300">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+	print '<input type="hidden" name="action" value="set_DECLINAISON_COMPACT_LINES">';
+	print ajax_constantonoff('DECLINAISON_COMPACT_LINES');
+	print '</form>';
+	print '</td></tr>';
+
+}
+
 print '</table>';
 
 llxFooter();
