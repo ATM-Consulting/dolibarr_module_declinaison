@@ -48,7 +48,7 @@ class pdf_rouget_dec extends ModelePdfExpedition
 		global $conf,$langs,$mysoc;
 
 		$langs->load("declinaison@declinaison");
-		
+
 		$this->db = $db;
 		$this->name = "rouget_dec";
 		$this->description = $langs->trans("RougetModelDescStandardPDF");
@@ -361,9 +361,9 @@ class pdf_rouget_dec extends ModelePdfExpedition
 				// Loop on each lines
 				for ($i = 0; $i < $nblignes; $i++)
 				{
-					
+
 					if($object->lines[$i]->special_code == 3) continue;
-					
+
 					$curY = $nexY;
 					$pdf->SetFont('','', $default_font_size - 1);   // Into loop to work with multipage
 					$pdf->SetTextColor(0,0,0);
@@ -573,6 +573,8 @@ class pdf_rouget_dec extends ModelePdfExpedition
 				@chmod($file, octdec($conf->global->MAIN_UMASK));
 
 				$this->result = array('fullpath'=>$file);
+
+				$object->fetch($object->id);
 
 				return 1;	// No error
 			}

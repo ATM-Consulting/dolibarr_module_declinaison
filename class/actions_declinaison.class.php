@@ -9,30 +9,52 @@ class ActionsDeclinaison
       */
 
 	function doActions($parameters, &$object, &$action, $hookmanager) {
-		
+
 		if($action==='builddoc' && (
 				(!empty($object->element)
 					&& !empty($conf->global->DECLINAISON_OBJECT_USURPATION)
 					&& in_array( $object->element, explode(',', $conf->global->DECLINAISON_OBJECT_USURPATION) )
 					)
-				|| (empty($conf->global->DECLINAISON_OBJECT_USURPATION) 
+				|| (empty($conf->global->DECLINAISON_OBJECT_USURPATION)
 						&& ($object->element=='propal' || $object->element=='facture' || $object->element=='commande' || $object->element=='shipping'))
 			)
 		) {
-				
+
 		//	return $this->dec_replace_line($parameters, $object, $action, $hookmanager);
-				
+
 		}
-	
+
 	}
-	
+
+	function afterPDFCreation($parameters, &$object, &$action, $hookmanager) {
+
+		global $conf;
+/*
+		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
+
+			if(
+					(!empty($object->element)
+							&& !empty($conf->global->DECLINAISON_OBJECT_USURPATION)
+							&& in_array( $object->element, explode(',', $conf->global->DECLINAISON_OBJECT_USURPATION) )
+							)
+					|| empty($conf->global->DECLINAISON_OBJECT_USURPATION)
+					) {
+						if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
+
+							$object->fetch($object->id);exit('la');
+
+						}
+					}
+		}*/
+	}
+
 	function beforePDFCreation($parameters, &$object, &$action, $hookmanager) {
 
 		return $this->dec_replace_line($parameters, $object, $action, $hookmanager);
 	}
-	
+
 	function dec_replace_line($parameters, &$object, &$action, $hookmanager) {
-		
+
 		global $conf;
 
 		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
@@ -68,40 +90,50 @@ class ActionsDeclinaison
 				}
 
 				if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
-					
+
 					$fk_product = -1;$line_k=array();
 					foreach($object->lines as $k=>&$line) {
-						
+
 						if($line->product_type>1 && !empty($conf->global->DECLINAISON_COMPACT_LINES_BREAK_ON_TITLE)) {
 							$line_k=array();
 						}
 
 						if($line->fk_product > 0) {
-						
+
 							//&& ($line->fk_product!=$fk_product || $fk_product == -1)) {
-						
+
 							if(!isset($line_k[$line->fk_product])) {
 								if(!empty($conf->global->DECLINAISON_COMPACT_LINES_BREAK_OTHER_PRODUCT))$line_k=array();
 								$line_k[$line->fk_product]= $k;
 							}
 
 						}
-						
-						if (isset($line_k[$line->fk_product]) && $k!=$line_k[$line->fk_product]){
 
+						if (isset($line_k[$line->fk_product]) && $k!=$line_k[$line->fk_product]){
 							$object->lines[$line_k[$line->fk_product]]->qty+=$line->qty;
+
+							if(isset($line->qty_shipped))$object->lines[$line_k[$line->fk_product]]->qty_shipped+=$line->qty_shipped;
+							if(isset($line->qty_asked))$object->lines[$line_k[$line->fk_product]]->qty_asked+=$line->qty_asked;
+
 							$object->lines[$line_k[$line->fk_product]]->total_ht+=$line->total_ht;
 							$object->lines[$line_k[$line->fk_product]]->total+=$line->total;
 							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k[$line->fk_product]]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
-								
+
 							$object->lines[$k]->special_code = 3;
-								
+
+							if(!empty($object->commande->expeditions)) {
+								$fk_origin_line1 = $object->lines[$line_k[$line->fk_product]]->fk_origin_line;
+								$object->commande->expeditions[$fk_origin_line1]+=$object->commande->expeditions[$line->fk_origin_line];
+
+								//var_dump($line->fk_origin_line, $object->commande->expeditions);exit;
+
+							}
 							//unset($object->lines[$k]);
 							//var_dump($fk_product,$line_k,$k,$object->lines[$line_k]->qty);exit;
 						}
 
 					}
-					
+
 					ksort($object->lines);
 
 				}
