@@ -22,3 +22,4 @@ DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF=Afficher le parent du produit 
 DECLINAISON_COMPACT_LINES=Regrouper les lignes de mêmes produits
 DECLINAISON_COMPACT_LINES_BREAK_OTHER_PRODUCT=Ne regrouper que les produits qui se suivent
 DECLINAISON_COMPACT_LINES_BREAK_ON_TITLE=Les titres ou sous-totaux interrompent le regroupement
+DocModelAzurDecDescription=Azur pour l'option déclinaison de fusion de produit (v6.0)

@@ -62,7 +62,7 @@ class modDeclinaison extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Declinaison for product";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.3.0';
+        $this->version = '1.5.0';
         // Key used in llx_const table to save module status enabled/disabled
         // (where Declinaison is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -82,6 +82,7 @@ class modDeclinaison extends DolibarrModules
         $this->module_parts = array(
             'triggers' => 1
             ,'hooks' => array('productcard','globalcard','pdfgeneration')
+        	,'models'=>1
         );
 
         // Data directories to create when module is enabled.
