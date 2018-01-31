@@ -82,8 +82,8 @@ class ActionsDeclinaison
 
 						$line->fk_product = $parent->id;
 						$line->product_ref= $parent->ref;
-						$line->product_label= $parent->label;
-						$line->product_desc= $parent->desc = ''; //TODO description might be customed... check if different before override
+						$line->product_label = $line->label = $parent->label;
+						$line->desc=$line->description=$line->product_desc= $parent->desc; //TODO description might be customed... check if different before override
 
 					}
 
@@ -117,7 +117,7 @@ class ActionsDeclinaison
 
 							$object->lines[$line_k[$line->fk_product]]->total_ht+=$line->total_ht;
 							$object->lines[$line_k[$line->fk_product]]->total+=$line->total;
-							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k[$line->fk_product]]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
+							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k[$line->fk_product]]->label= $object->lines[$line_k[$line->fk_product]]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
 
 							$object->lines[$k]->special_code = 3;
 
