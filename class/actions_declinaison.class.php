@@ -8,8 +8,31 @@ class ActionsDeclinaison
       *  @return       void
       */
 
+	function doActions($parameters, &$object, &$action, $hookmanager) {
+		
+		if($action==='builddoc' && (
+				(!empty($object->element)
+					&& !empty($conf->global->DECLINAISON_OBJECT_USURPATION)
+					&& in_array( $object->element, explode(',', $conf->global->DECLINAISON_OBJECT_USURPATION) )
+					)
+				|| (empty($conf->global->DECLINAISON_OBJECT_USURPATION) 
+						&& ($object->element=='propal' || $object->element=='facture' || $object->element=='commande' || $object->element=='shipping'))
+			)
+		) {
+				
+		//	return $this->dec_replace_line($parameters, $object, $action, $hookmanager);
+				
+		}
+	
+	}
+	
 	function beforePDFCreation($parameters, &$object, &$action, $hookmanager) {
 
+		return $this->dec_replace_line($parameters, $object, $action, $hookmanager);
+	}
+	
+	function dec_replace_line($parameters, &$object, &$action, $hookmanager) {
+		
 		global $conf;
 
 		if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
@@ -38,30 +61,40 @@ class ActionsDeclinaison
 						$line->fk_product = $parent->id;
 						$line->product_ref= $parent->ref;
 						$line->product_label= $parent->label;
-						$line->product_desc= $parent->desc; //TODO description might be customed... check if different before override
+						$line->product_desc= $parent->desc = ''; //TODO description might be customed... check if different before override
 
 					}
 
 				}
 
 				if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
-
-					$fk_product = -1;$line_k=-1;
+					
+					$fk_product = -1;$line_k=array();
 					foreach($object->lines as $k=>&$line) {
-						if($line->product_type>1) $fk_product = -1;
+						
+						if($line->product_type>1 && !empty($conf->global->DECLINAISON_COMPACT_LINES_BREAK_ON_TITLE)) {
+							$line_k=array();
+						}
 
-						if($line->fk_product > 0 && ($line->fk_product!=$fk_product || $fk_product == -1)) {
-							$fk_product = $line->fk_product;
-							$line_k = $k;
+						if($line->fk_product > 0) {
+						
+							//&& ($line->fk_product!=$fk_product || $fk_product == -1)) {
+						
+							if(!isset($line_k[$line->fk_product])) {
+								if(!empty($conf->global->DECLINAISON_COMPACT_LINES_BREAK_OTHER_PRODUCT))$line_k=array();
+								$line_k[$line->fk_product]= $k;
+							}
 
 						}
-						else if ($line->fk_product == $fk_product){
+						
+						if (isset($line_k[$line->fk_product])){
 
-							$object->lines[$line_k]->qty+=$line->qty;
-							$object->lines[$line_k]->total_ht+=$line->total_ht;
-							$object->lines[$line_k]->total+=$line->total;
-							$object->lines[$k]->special_code = 3;
-							$object->lines[$line_k]->desc = $object->lines[$line_k]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
+							$object->lines[$line_k[$line->fk_product]]->qty+=$line->qty;
+							$object->lines[$line_k[$line->fk_product]]->total_ht+=$line->total_ht;
+							$object->lines[$line_k[$line->fk_product]]->total+=$line->total;
+							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
+							
+							if($k!=$line_k[$line->fk_product]) $object->lines[$k]->special_code = 3;
 							//unset($object->lines[$k]);
 							//var_dump($fk_product,$line_k,$k,$object->lines[$line_k]->qty);exit;
 						}

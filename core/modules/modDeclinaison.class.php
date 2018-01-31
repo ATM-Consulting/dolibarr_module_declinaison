@@ -81,7 +81,7 @@ class modDeclinaison extends DolibarrModules
         // for specific css file (eg: /declinaison/css/declinaison.css.php)
         $this->module_parts = array(
             'triggers' => 1
-            ,'hooks' => array('productcard','pdfgeneration')
+            ,'hooks' => array('productcard','globalcard','pdfgeneration')
         );
 
         // Data directories to create when module is enabled.
