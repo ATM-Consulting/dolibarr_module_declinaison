@@ -87,14 +87,15 @@ class ActionsDeclinaison
 
 						}
 						
-						if (isset($line_k[$line->fk_product])){
+						if (isset($line_k[$line->fk_product]) && $k!=$line_k[$line->fk_product]){
 
 							$object->lines[$line_k[$line->fk_product]]->qty+=$line->qty;
 							$object->lines[$line_k[$line->fk_product]]->total_ht+=$line->total_ht;
 							$object->lines[$line_k[$line->fk_product]]->total+=$line->total;
-							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
-							
-							if($k!=$line_k[$line->fk_product]) $object->lines[$k]->special_code = 3;
+							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k[$line->fk_product]]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
+								
+							$object->lines[$k]->special_code = 3;
+								
 							//unset($object->lines[$k]);
 							//var_dump($fk_product,$line_k,$k,$object->lines[$line_k]->qty);exit;
 						}
