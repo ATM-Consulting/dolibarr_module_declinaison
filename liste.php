@@ -176,15 +176,19 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		$PDOdb = new TPDOdb;
 		
 		$newDeclinaison = new TDeclinaison;
-		$newDeclinaison->fk_parent = $fk_parent;
-		$newDeclinaison->fk_declinaison = $fk_declinaison;
-		$newDeclinaison->more_price = $more_price;
-		$newDeclinaison->more_percent = $more_percent;
+		$TRes = $newDeclinaison->LoadAllBy($PDOdb, array('fk_parent'=>$fk_parent, 'fk_declinaison'=>$fk_declinaison));
+		if(!empty($TRes)) setEventMessage("Cette déclinaison existe déjà pour ce produit", 'errors');
+		else {
+			$newDeclinaison->fk_parent = $fk_parent;
+			$newDeclinaison->fk_declinaison = $fk_declinaison;
+			$newDeclinaison->more_price = $more_price;
+			$newDeclinaison->more_percent = $more_percent;
 		
-		$newDeclinaison->up_to_date = 1;
-		$newDeclinaison->save($PDOdb);
+			$newDeclinaison->up_to_date = 1;
+			$newDeclinaison->save($PDOdb);
 		
-		$product->call_trigger('PRODUCT_PRICE_MODIFY', $user);
+			$product->call_trigger('PRODUCT_PRICE_MODIFY', $user);
+		}
 	}
 }
 elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
@@ -743,7 +747,7 @@ else
                 // Status (to sell)
                 print '<td align="right" nowrap="nowrap">'.$product_static->LibStatut($objp->tobuy,5,1).'</td>';
 
-				if ($user->rights->declinaison->delete && $objp->link_id) print '<td align="right" nowrap="nowrap"><a href="'.dol_buildpath('/declinaison/liste.php?action=delete_link&fk_product='.$objp->rowid.'&link_id='.$objp->link_id, 2).'">'.img_picto($langs->trans('DeleteLink'), 'delete').'</a></td>';
+				if ($user->rights->declinaison->delete && $objp->link_id) print '<td align="right" nowrap="nowrap"><a href="'.dol_buildpath('/declinaison/liste.php?action=delete_link&fk_product='.$objp->rowid.'&link_id='.$objp->link_id, 1).'">'.img_picto($langs->trans('DeleteLink'), 'delete').'</a></td>';
 				else print '<td align="right" nowrap="nowrap"></td>';
 
                 print "</tr>\n";
