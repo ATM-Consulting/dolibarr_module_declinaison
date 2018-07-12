@@ -59,6 +59,7 @@ class ActionsDeclinaison
 
 							$object->lines[$line_k]->qty+=$line->qty;
 							$object->lines[$line_k]->total_ht+=$line->total_ht;
+							$object->lines[$line_k]->total_tva+=$line->total_tva;
 							$object->lines[$line_k]->total+=$line->total;
 							$object->lines[$k]->special_code = 3;
 							$object->lines[$line_k]->desc = $object->lines[$line_k]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
