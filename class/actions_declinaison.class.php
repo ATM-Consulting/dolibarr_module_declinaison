@@ -90,7 +90,7 @@ class ActionsDeclinaison
 				}
 
 				if(!empty($conf->global->DECLINAISON_COMPACT_LINES)) {
-
+					$TNewLine = array();
 					$fk_product = -1;$line_k=array();
 					foreach($object->lines as $k=>&$line) {
 
@@ -131,11 +131,13 @@ class ActionsDeclinaison
 							//unset($object->lines[$k]);
 							//var_dump($fk_product,$line_k,$k,$object->lines[$line_k]->qty);exit;
 						}
+						
+						if ($object->lines[$k]->special_code != 3) $TNewLine[] = $line;
 
 					}
 
-					ksort($object->lines);
-
+//					ksort($object->lines);
+					$object->lines = $TNewLine;
 				}
 			}
 		}
