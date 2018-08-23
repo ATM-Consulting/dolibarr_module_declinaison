@@ -116,6 +116,7 @@ class ActionsDeclinaison
 							if(isset($line->qty_asked))$object->lines[$line_k[$line->fk_product]]->qty_asked+=$line->qty_asked;
 
 							$object->lines[$line_k[$line->fk_product]]->total_ht+=$line->total_ht;
+							$object->lines[$line_k[$line->fk_product]]->total_tva+=$line->total_tva;
 							$object->lines[$line_k[$line->fk_product]]->total+=$line->total;
 							$object->lines[$line_k[$line->fk_product]]->desc = $object->lines[$line_k[$line->fk_product]]->label= $object->lines[$line_k[$line->fk_product]]->description = ''; // Sinon utilise la description de la ligne dans laquelle on groupe les qtés, donc celle d'une déclinaison.
 
