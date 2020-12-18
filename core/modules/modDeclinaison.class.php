@@ -221,13 +221,13 @@ class modDeclinaison extends DolibarrModules
         //// Permission id (must not be already used)
         $this->rights[$r][0] = $this->numero+$r;
         $this->rights[$r][1] = 'Voir les déclinaisons';
-        $this->rights[$r][3] = 1;
+        $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'read';
         $r++;
 		
 		$this->rights[$r][0] = $this->numero+$r;
         $this->rights[$r][1] = 'Supprimer les liens';
-        $this->rights[$r][3] = 1;
+        $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'delete';
         $r++;
         
