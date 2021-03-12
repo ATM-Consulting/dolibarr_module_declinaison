@@ -49,7 +49,7 @@ $action = GETPOST('action', 'alpha');
 if (preg_match('/set_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
-	if (dolibarr_set_const($db, $code, GETPOST($code), 'chaine', 0, '', $conf->entity) > 0)
+	if (dolibarr_set_const($db, $code, GETPOST($code,'alpha'), 'chaine', 0, '', $conf->entity) > 0)
 	{
 		header("Location: ".$_SERVER["PHP_SELF"]);
 		exit;
@@ -59,7 +59,7 @@ if (preg_match('/set_(.*)/',$action,$reg))
 		dol_print_error($db);
 	}
 }
-	
+
 if (preg_match('/del_(.*)/',$action,$reg))
 {
 	$code=$reg[1];
@@ -166,7 +166,7 @@ if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
 	print ajax_constantonoff('DECLINAISON_COMPACT_LINES');
 	print '</form>';
 	print '</td></tr>';
-	
+
 	$var=!$var;
 	print '<tr '.$bc[$var].'>';
 	print '<td>'.$langs->trans("DECLINAISON_COMPACT_LINES_BREAK_OTHER_PRODUCT").'</td>';
@@ -178,7 +178,7 @@ if(!empty($conf->global->DECLINAISON_SHOW_PARENT_INSTEAD_OF_CHILD_INTO_PDF)) {
 	print ajax_constantonoff('DECLINAISON_COMPACT_LINES_BREAK_OTHER_PRODUCT');
 	print '</form>';
 	print '</td></tr>';
-	
+
 	if(!empty($conf->subtotal->enabled)) {
 		$var=!$var;
 		print '<tr '.$bc[$var].'>';

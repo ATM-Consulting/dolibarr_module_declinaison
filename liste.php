@@ -39,16 +39,16 @@ $langs->load("products");
 $langs->load("stocks");
 $langs->load("declinaison@declinaison");
 
-$action = GETPOST('action');
-$sref=GETPOST("sref");
-$sbarcode=GETPOST("sbarcode");
-$snom=GETPOST("snom");
-$sall=GETPOST("sall");
+$action = GETPOST('action','alpha');
+$sref=GETPOST("sref",'alpha');
+$sbarcode=GETPOST("sbarcode", 'alpha');
+$snom=GETPOST("snom",'alpha');
+$sall=GETPOST("sall", 'alpha');
 $type=GETPOST("type","int");
-$search_sale = GETPOST("search_sale");
+$search_sale = GETPOST("search_sale",'alpha');
 $search_categ = GETPOST("search_categ",'int');
-$tosell = GETPOST("tosell");
-$tobuy = GETPOST("tobuy");
+$tosell = GETPOST("tosell",'alpha');
+$tobuy = GETPOST("tobuy",'alpha');
 $fourn_id = GETPOST("fourn_id",'int');
 $catid = GETPOST('catid','int');
 
@@ -84,29 +84,29 @@ else {
 if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rights->service->creer) )
 {
 	$error = 0;
-	
+
 	$product = new Product($db);
 	$product->fetch($fk_parent_declinaison); // TODO à revoir car le fonctionnement de base est de ne pas pouvoir créer des déclinaisons de déclinaison
 	$product->fetch_optionals($product->id);
-	
+
 	// Création d'une déclinaison en créant un nouveau produit
-	if (GETPOST('create_dec'))
+	if (GETPOST('create_dec','alpha'))
 	{
 		$declinaison = clone $product;
 		$declinaison->id = null;
-		
-		$declinaison->ref = GETPOST('reference_dec');
-		if (GETPOST('add_reference_dec'))
+
+		$declinaison->ref = GETPOST('reference_dec','alpha');
+		if (GETPOST('add_reference_dec','alpha'))
 		{
-			if (!empty($conf->global->DECLINAISON_CONCAT_WITHOUT_SPACE)) $declinaison->ref.= GETPOST('add_reference_dec');
-			else $declinaison->ref.= ' '.GETPOST('add_reference_dec');
+			if (!empty($conf->global->DECLINAISON_CONCAT_WITHOUT_SPACE)) $declinaison->ref.= GETPOST('add_reference_dec','alpha');
+			else $declinaison->ref.= ' '.GETPOST('add_reference_dec','alpha');
 		}
-		$label = GETPOST('libelle_dec');
+		$label = GETPOST('libelle_dec','alpha');
 		if (!empty($label)) $declinaison->libelle = $label;
 		else $declinaison->libelle.= ' (déclinaison)';
-		
+
 		$declinaison->label = $declinaison->libelle; // Compatibility
-		
+
 	    // Gére le code barre
 	    if (!empty($conf->barcode->enabled))
 		{
@@ -123,13 +123,13 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 				$declinaison->barcode = '';
 			}
 	    }
-		
+
 		if ($declinaison->create($user) > 0)
 		{
 			$fk_parent = $product->id;
 			$fk_declinaison = $declinaison->id;
-			$more_price = price2num(GETPOST('more_price'));
-			$more_percent = price2num(GETPOST('more_percent'));
+			$more_price = price2num(GETPOST('more_price','int'));
+			$more_percent = price2num(GETPOST('more_percent','int'));
 		}
 		else
 		{
@@ -138,31 +138,31 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 		}
 	}
 	// Création d'une déclinaison avec un produit enfant déjà existant
-	elseif (!empty($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) && GETPOST('create_dec_with_existant_prod'))
+	elseif (!empty($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) && GETPOST('create_dec_with_existant_prod','alpha'))
 	{
 		$fk_parent = $product->id;
-		$fk_declinaison = GETPOST('productid');
+		$fk_declinaison = GETPOST('productid','int');
 		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES))
 		{
 			$declinaison = new Product($db);
 			$declinaison->fetch($fk_declinaison);
 		}
-		$more_price = price2num(GETPOST('more_price_with_existant_product'));
-		$more_percent = price2num(GETPOST('more_percent_with_existant_product'));
-		
+		$more_price = price2num(GETPOST('more_price_with_existant_product','int'));
+		$more_percent = price2num(GETPOST('more_percent_with_existant_product','int'));
+
 		if (empty($fk_parent) || empty($fk_declinaison))
 		{
 			$error++;
 			setEventMessage($langs->trans('declinaison_error_fk_parent_or_declinaison_is_missing'), 'errors');
 		}
 	}
-	
+
 	if ($fk_parent == $fk_declinaison)
 	{
 		$error++;
 		setEventMessage($langs->trans('declinaison_error_fk_parent_and_declinaison_cant_be_same'), 'errors');
 	}
-	
+
 	if ($error == 0)
 	{
 		if (!empty($conf->global->DECLINAISON_COPY_TAGS_CATEGORIES) && !empty($declinaison->id))
@@ -171,10 +171,10 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$TCategory = $c->containing($product->id, Categorie::TYPE_PRODUCT, 'id');
 			if (!empty($TCategory)) $declinaison->setCategories($TCategory);
 		}
-		
-		
+
+
 		$PDOdb = new TPDOdb;
-		
+
 		$newDeclinaison = new TDeclinaison;
 		$TRes = $newDeclinaison->LoadAllBy($PDOdb, array('fk_parent'=>$fk_parent, 'fk_declinaison'=>$fk_declinaison));
 		if(!empty($TRes)) setEventMessage("Cette déclinaison existe déjà pour ce produit", 'errors');
@@ -183,10 +183,10 @@ if($action=='create_declinaison' && ($user->rights->produit->creer || $user->rig
 			$newDeclinaison->fk_declinaison = $fk_declinaison;
 			$newDeclinaison->more_price = $more_price;
 			$newDeclinaison->more_percent = $more_percent;
-		
+
 			$newDeclinaison->up_to_date = 1;
 			$newDeclinaison->save($PDOdb);
-		
+
 			$product->call_trigger('PRODUCT_PRICE_MODIFY', $user);
 		}
 	}
@@ -197,7 +197,7 @@ elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
 	if ($link_id)
 	{
 		$PDOdb = new TPDOdb;
-		
+
 		$declinaison = new TDeclinaison;
 		if ($declinaison->load($PDOdb, $link_id)) $declinaison->delete($PDOdb);
 	}
@@ -205,7 +205,7 @@ elseif ($action == 'delete_link' && $user->rights->declinaison->delete)
 
 // Get object canvas (By default, this is not defined, so standard usage of dolibarr)
 //$object->getCanvas($id);
-$canvas=GETPOST("canvas");
+$canvas=GETPOST("canvas",'alpha');
 $objcanvas='';
 if (! empty($canvas))
 {
@@ -306,7 +306,7 @@ else
     //if (GETPOST("toolowstock")) $sql.= " HAVING SUM(s.reel) < p.seuil_stock_alerte";    // Not used yet
     $sql.= $db->order($sortfield,$sortorder);
     $sql.= $db->plimit($limit + 1, $offset);
-	
+
     dol_syslog("sql=".$sql);
     $resql = $db->query($sql);
     if ($resql)
@@ -331,15 +331,15 @@ else
 
     	$title=$langs->trans("Declinaison");
         llxHeader('',$title,$helpurl,'');
-		
+
 		$head=product_prepare_head($product, $user);
 		$titre=$langs->trans("CardProduct".$product->type);
 		$picto=($product->type==1?'service':'product');
 		dol_fiche_head($head, 'declinaison', $titre, 0, $picto);
-		
+
 		$prod = new Product($db);
-		$prod->fetch($_REQUEST['fk_product']);		
-		
+		$prod->fetch($_REQUEST['fk_product']);
+
 		?>
 			<table class="border" width="100%">
 				<tr>
@@ -350,10 +350,10 @@ else
 					<td><?php echo $langs->trans("Label"); ?></td>
 					<td><?php echo $prod->libelle; ?></td>
 				</tr>
-			</table><br />		
+			</table><br />
 		<?php
     	// Displays product removal confirmation
-    	if (GETPOST('delprod'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
+    	if (GETPOST('delprod','alpha'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
 
     	$param="&fk_product=".$fk_product."&amp;sref=".$sref.($sbarcode?"&amp;sbarcode=".$sbarcode:"")."&amp;snom=".$snom."&amp;sall=".$sall."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy;
     	$param.=($fourn_id?"&amp;fourn_id=".$fourn_id:"");
@@ -390,23 +390,23 @@ else
     	}
     	else
     	{
-    		
+
 			if($is_declinaison_master && ($user->rights->produit->creer || $user->rights->service->creer) ) {
-			/* c'est la déclinaison parente */	
-				$add_ref=chr(65+$num); 
-			
+			/* c'est la déclinaison parente */
+				$add_ref=chr(65+$num);
+
 				$form = new Form($db);
-			
+
 				?>
 				<p>
 					<form name="form_declinaison" action="liste.php">
-						
+
 					<input type="hidden" name="action" value="create_declinaison" />
-					
-					<input type="hidden" name="fk_product" value="<?php echo $fk_product; ?>" /> 
-					<input type="hidden" name="fk_parent_declinaison" value="<?php echo $fk_parent_declinaison; ?>" /> 
-					
-					
+
+					<input type="hidden" name="fk_product" value="<?php echo $fk_product; ?>" />
+					<input type="hidden" name="fk_parent_declinaison" value="<?php echo $fk_parent_declinaison; ?>" />
+
+
 					<table class="border" width="100%">
                         <tr>
                             <td><?php echo $langs->trans("Ref"); ?></td>
@@ -420,17 +420,17 @@ else
 			                            </td>
 		                            <?php
 	                            }
-								
-								
+
+
 								$libelle = !empty($product->label) ? $product->label : $product->libelle;
-								
+
 	                        ?>
                         </tr>
                         <tr>
                             <td width="20%"><?php echo $langs->trans("Label"); ?></td>
                             <td><input type="text" name="libelle_dec" id="libelle_dec" value="<?php echo addslashes($libelle).' '.$add_ref; ?>" size="40" maxlength="255" initlibelle="<?php echo htmlentities($libelle); ?>" /></td>
                         </tr>
-            			<tr> 
+            			<tr>
                             <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
                             <?php
                             	if($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS) {
@@ -448,60 +448,60 @@ else
                          </tr>
                          <tr>
                          	<?php
-							
+
 							echo '<td colspan="2" align="center"><input type="submit" class="butAction" name="create_dec" value="'.$langs->trans('CreateNewDeclinaison').'" /></td>';
-							
+
                          	if (!empty($conf->global->DECLINAISON_ALLOW_CREATE_DECLINAISON_WITH_EXISTANT_PRODUCTS))
 							{
 								echo '<td colspan="2" align="center"><input type="submit" name="create_dec_with_existant_prod" class="butAction" value="'.$langs->trans('CreateNewDeclinaisonWithExistantProduct').'" /></td>';
 	                        }
 	                        ?>
-                         </tr>   
+                         </tr>
 		            </table>
         			</form>
 				<br />
 				<br />
 				</p>
 				<script type="text/javascript">
-					
+
 					$('#add_reference_dec').keyup(function() {
 						var DECLINAISON_NO_MODIFY_ITEM = <?php echo (int)$conf->global->DECLINAISON_NO_MODIFY_ITEM; ?>;
 						var ref = $(this).val();
-						
+
 						var libelle = $('#libelle_dec').attr('initlibelle');
-							
+
 						$('#libelle_dec').val( libelle +' ' + ref );
-						
+
 					});
-					
+
 				</script>
 				<?php
-				
+
 			}
 			elseif(!$is_declinaison_master){
-			    
-                $fk_product = GETPOST('fk_product');
-                
-				if(GETPOST('action')=='SAVE_DECLINAISON') {
+
+                $fk_product = GETPOST('fk_product','int');
+
+				if(GETPOST('action','alpha')=='SAVE_DECLINAISON') {
 				    //Le produit est une déclinaison
 					//echo($_REQUEST['up_to_date']);
 					//if($_REQUEST['up_to_date'] == "Oui") {
 					$sql = "UPDATE ".MAIN_DB_PREFIX."declinaison";
-					$sql.= " SET up_to_date = ".( GETPOST('up_to_date') ? 1 : 0 );
-                    $sql.= " ,more_price=".(float)GETPOST('more_price');
-                    $sql.= " ,more_percent=".(float)GETPOST('more_percent');
+					$sql.= " SET up_to_date = ".( GETPOST('up_to_date','alpha') ? 1 : 0 );
+                    $sql.= " ,more_price=".(float)GETPOST('more_price','int');
+                    $sql.= " ,more_percent=".(float)GETPOST('more_percent','int');
 					$sql.= " WHERE fk_declinaison = ".$fk_product;
 
 					$db->query($sql);
-					
+
 					setEventMessage("Modification enregistrée avec succès");
 				}
 				?>
-				
+
 					<form name="priceUpToDate" method="POST" action="<?php echo $_SERVER['PHP_SELF'] ?>" />
 						<p>
-							
-							<?php					
+
+							<?php
 								//On récupère la valeur actuelle du champ "up_to_date" pour cette déclinaison
 								$sql = "SELECT up_to_date,more_price,more_percent";
 								$sql.= " FROM ".MAIN_DB_PREFIX."declinaison";
@@ -515,25 +515,25 @@ else
 								<tr>
 								    <td><?php echo $langs->trans('MirrorPrice'); ?></td><td><input type="checkbox" name="up_to_date" value="1" <?php if ($re->up_to_date){ ?>checked="checked"<?php } ?>/></td>
                                  </tr>
-                                 <tr> 
+                                 <tr>
                                     <td><?php echo $langs->trans('MirrorPriceMore'); ?></td><td><input type="number" step="0.01" name="more_price" value="<?php echo $re->more_price ?>" onchange=" if(this.value!=0) $('input[name=more_percent]').val(0) " /></td>
                                  </tr>
                                  <tr>
                                     <td><?php echo $langs->trans('MirrorPricePercent'); ?></td><td><input type="number" step="1" name="more_percent" value="<?php echo $re->more_percent ?>"  onchange=" if(this.value!=0) $('input[name=more_price]').val(0) "  /></td>
-                                 </tr>   
+                                 </tr>
                                 <tr><td colspan="2" align="center">
                                 							<input type="submit" name="maintientAJour" value="Valider" />
                                 </td></tr>
 							</table>
 							<!--<?php print $form->selectyesno("sync_price_dec",$object->public,1);?>-->
-							
+
 						<br />
 						</p>
 					</form>
 				<?php
 			}
-			
-			
+
+
     		print '<form action="liste.php" method="post" name="formulaire">';
     		print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     		print '<input type="hidden" name="action" value="list">';
@@ -602,11 +602,11 @@ else
     		}
 
     		// Sell price
-            
+
         		print '<td class="liste_titre">';
         		print '&nbsp;';
         		print '</td>';
-            
+
 
     		// Minimum buying Price
     		print '<td class="liste_titre">';
@@ -624,7 +624,7 @@ else
     		print '<td class="liste_titre">';
             print '&nbsp;';
             print '</td>';
-			
+
 			print '<td class="liste_titre">';
             print '&nbsp;';
             print '</td>';
@@ -759,7 +759,7 @@ else
     		print "</table>";
     		print '</div>';
     		print '</form>';
-			
+
     	}
     }
     else
@@ -775,10 +775,10 @@ function quickEditProduct(fk_product) {
 		$('body').append('<div id="quickEditProduct" title="Edition rapide"></div>');
 	}
 
-	$.get("<?php 
+	$.get("<?php
 	   if((float)DOL_VERSION<=3.6) echo dol_buildpath('/product/fiche.php?action=edit&id=',1);
        else   echo dol_buildpath('/product/card.php?action=edit&id=',1);
-       
+
 	?>"+fk_product, function(data) {
 		var html = $(data).find('div.fiche').html();
 
@@ -791,11 +791,11 @@ function quickEditProduct(fk_product) {
 			setTimeout(function() {
 				$.post($(self).attr('action'), $( self ).serialize(), function() {
 					$('#quickEditProduct').dialog("close");
-					$.jnotify('Modifications enregistr&eacute;es', "ok");   
+					$.jnotify('Modifications enregistr&eacute;es', "ok");
 					refreshDeclinaisonList();
 				});
 			}, 1);
-			
+
 			return false;
 		});
 
@@ -813,28 +813,28 @@ function quickEditProduct(fk_product) {
 function refreshDeclinaisonList() {
 	$.get(document.location.href, function(data) {
 		$('#listDeclinaison').replaceWith( $(data).find('#listDeclinaison'));
-		
+
 		<?php
 		if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
 			?>removeLinkDeclinaison();
 		<?php
 		}
 		?>
-		
+
 	});
 }
 function removeLinkDeclinaison() {
-		
+
 		$('#listDeclinaison a.quickedit').remove();
 		/*$('#listDeclinaison a').each(function() {
 			$(this).replaceWith( $(this).html() );
 		});*/
-		
+
 		$('#libelle_dec,#reference_dec').css('background-color','#ccc');
 		$('#libelle_dec,#reference_dec').attr('readonly','readonly');
-		
-	
-	
+
+
+
 }
 <?php
 	if(!empty($id_clone) && $id_clone>0) {
@@ -845,16 +845,16 @@ function removeLinkDeclinaison() {
 		}
 		else {
 			?>refreshDeclinaisonList();
-			$.jnotify('D&eacute;clinaison cr&eacute;&eacute;e', "ok");   
+			$.jnotify('D&eacute;clinaison cr&eacute;&eacute;e', "ok");
 			<?php
 		}
-		
+
 	}
-	
+
 	if($conf->global->DECLINAISON_NO_MODIFY_ITEM==1) {
 		?>removeLinkDeclinaison();<?php
 	}
-	
+
 ?>
 </script>
 
