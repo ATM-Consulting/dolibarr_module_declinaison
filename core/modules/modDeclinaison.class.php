@@ -62,7 +62,7 @@ class modDeclinaison extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Declinaison for product";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.5.0';
+        $this->version = '1.5.1';
         // Key used in llx_const table to save module status enabled/disabled
         // (where Declinaison is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -224,13 +224,13 @@ class modDeclinaison extends DolibarrModules
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'read';
         $r++;
-		
+
 		$this->rights[$r][0] = $this->numero+$r;
         $this->rights[$r][1] = 'Supprimer les liens';
         $this->rights[$r][3] = 0;
         $this->rights[$r][4] = 'delete';
         $r++;
-        
+
         // Main menu entries
         $this->menus = array(); // List of menus to add
         $r = 0;
@@ -420,18 +420,18 @@ class modDeclinaison extends DolibarrModules
     public function init($options = '')
     {
        global $conf;
-       
+
 	    $sql = array();
 
         $result = $this->loadTables();
-        
+
         define('INC_FROM_DOLIBARR', true);
         dol_include_once('/declinaison/script/create-maj-base.php');
-        
+
 		dolibarr_set_const($this->db, 'DECLINAISON_SILENT_MODE',$conf->global->DECLINAISON_SILENT_MODE ,'chaine',1,'Affiche ou pas un popin après la création de la déclinaison',0);
 		dolibarr_set_const($this->db, 'DECLINAISON_NO_SHOW_ITEM', $conf->global->DECLINAISON_NO_SHOW_ITEM ,'chaine',1,'Affiche ou pas les déclinaison dans la liste des produit',0);
     	dolibarr_set_const($this->db, 'DECLINAISON_NO_MODIFY_ITEM', $conf->global->DECLINAISON_NO_MODIFY_ITEM ,'chaine',1,'Permet de modifier ou pas les déclinaisons',0);
-		
+
         return $this->_init($sql, $options);
     }
 

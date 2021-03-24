@@ -41,16 +41,16 @@ $langs->load("products");
 $langs->load("stocks");
 $langs->load("suppliers");
 
-$action = GETPOST('action');
-$sref=GETPOST("sref");
-$sbarcode=GETPOST("sbarcode");
-$snom=GETPOST("snom");
-$sall=GETPOST("sall");
+$action = GETPOST('action','alpha');
+$sref=GETPOST("sref",'alpha');
+$sbarcode=GETPOST("sbarcode",'alpha');
+$snom=GETPOST("snom",'alpha');
+$sall=GETPOST("sall",'alpha');
 $type=GETPOST("type","int");
-$search_sale = GETPOST("search_sale");
+$search_sale = GETPOST("search_sale",'alpha');
 $search_categ = GETPOST("search_categ",'int');
-$tosell = GETPOST("tosell");
-$tobuy = GETPOST("tobuy");
+$tosell = GETPOST("tosell",'alpha');
+$tobuy = GETPOST("tobuy",'alpha');
 $fourn_id = GETPOST("fourn_id",'int');
 $catid = GETPOST('catid','int');
 
@@ -69,7 +69,7 @@ $limit = $conf->liste_limit;
 
 // Get object canvas (By default, this is not defined, so standard usage of dolibarr)
 //$object->getCanvas($id);
-$canvas=GETPOST("canvas");
+$canvas=GETPOST("canvas",'alpha');
 $objcanvas='';
 if (! empty($canvas))
 {
@@ -135,9 +135,9 @@ else
     $sql.= ' MIN(pfp.unitprice) as minsellprice';
     $sql .= ', p.desiredstock';
     $sql.= ' FROM '.MAIN_DB_PREFIX.'product as p';
-	
+
 	if($conf->declinaison->enabled) $sql.= ' LEFT OUTER JOIN '.MAIN_DB_PREFIX.'declinaison as declinaison ON (p.rowid=declinaison.fk_declinaison)';
-	
+
     if (! empty($search_categ) || ! empty($catid)) $sql.= ' LEFT JOIN '.MAIN_DB_PREFIX."categorie_product as cp ON p.rowid = cp.fk_product"; // We'll need this table joined to the select in order to filter by categ
    	$sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product_fournisseur_price as pfp ON p.rowid = pfp.fk_product";
 	// multilang
@@ -146,9 +146,9 @@ else
 		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product_lang as pl ON pl.fk_product = p.rowid AND pl.lang = '".$langs->getDefaultLang() ."'";
 	}
 	$sql.= ' WHERE p.entity IN ('.getEntity('product', 1).')';
-	
+
 	if($conf->declinaison->enabled && $conf->global->DECLINAISON_NO_SHOW_ITEM) $sql.= ' AND declinaison.rowid IS NULL ';
-	
+
 	if ($sall)
 	{
 		// For natural search
@@ -229,7 +229,7 @@ else
     	llxHeader('',$title,$helpurl,'');
 
     	// Displays product removal confirmation
-    	if (GETPOST('delprod'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
+    	if (GETPOST('delprod','alpha'))	dol_htmloutput_mesg($langs->trans("ProductDeleted",GETPOST('delprod')));
 
     	$param="&amp;sref=".$sref.($sbarcode?"&amp;sbarcode=".$sbarcode:"")."&amp;snom=".$snom."&amp;sall=".$sall."&amp;tosell=".$tosell."&amp;tobuy=".$tobuy;
     	$param.=($fourn_id?"&amp;fourn_id=".$fourn_id:"");
@@ -283,7 +283,7 @@ else
     	 	if (empty($conf->global->PRODUIT_MULTIPRICES)) $colspan++;
     	 	if ($user->rights->fournisseur->lire) $colspan++;
     	 	if (! empty($conf->stock->enabled) && $user->rights->stock->lire && $type != 1) $colspan+=2;
-    	 	
+
     		if (! empty($conf->categorie->enabled))
     		{
     		 	$moreforfilter.=$langs->trans('Categories'). ': ';
@@ -367,10 +367,10 @@ else
     			print '</td>';
     		}
 
-    		print '<td align="center">';  		
+    		print '<td align="center">';
             print $form->selectarray('tosell', array('0'=>$langs->trans('ProductStatusNotOnSellShort'),'1'=>$langs->trans('ProductStatusOnSellShort')),$tosell,1);
             print '</td >';
-            
+
             print '<td align="center">';
             print $form->selectarray('tobuy', array('0'=>$langs->trans('ProductStatusNotOnBuyShort'),'1'=>$langs->trans('ProductStatusOnBuyShort')),$tobuy,1);
             print '</td>';
@@ -498,7 +498,7 @@ else
                 print '<td align="center" class="nowrap">'.$product_static->LibStatut($objp->tobuy,5,1).'</td>';
 
                 print '<td>&nbsp;</td>';
-                
+
                 print "</tr>\n";
     			$i++;
     		}
